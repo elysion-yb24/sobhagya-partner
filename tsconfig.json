@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "jsx": "preserve",
+        "incremental": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./*"]
+        },
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ]
+    },
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "ni18n.config.ts.js", "app/(defaults)/datatables/advanced/page.tsx", "components/components/sweet-alerts/components-sweet-alerts-basic.jsx", "components/components/sweet-alerts/components-sweet-alerts-chaining-modals.jsx", "components/components/sweet-alerts/components-sweet-alerts-cancel.jsx", "components/components/sweet-alerts/components-sweet-alerts-custom-animation.jsx", "components/components/sweet-alerts/components-sweet-alerts-custom-image.jsx", "components/components/sweet-alerts/components-sweet-alerts-custom-style.jsx", "components/components/sweet-alerts/components-sweet-alerts-dynamic.jsx", "components/components/sweet-alerts/components-sweet-alerts-html.jsx", "components/components/sweet-alerts/components-sweet-alerts-rtl.jsx", "components/components/sweet-alerts/components-sweet-alerts-success.jsx", "components/components/sweet-alerts/components-sweet-alerts-title-with-text.jsx", "components/components/sweet-alerts/components-sweet-alerts-warning.jsx", "components/components/sweet-alerts/components-sweet-alerts-with-footer.jsx"],
+    "exclude": ["node_modules"]
+}
