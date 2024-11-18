@@ -13,9 +13,11 @@ async function page({
    
     const queryString = buildQuery(searchParams)
     // console.log(queryString,"querystring")
-    const transactionsData = await getTransactionsApi(`/admin/get-transactions-admin?${queryString}`, access_token, refresh_token)
-    const callsData=await getAdminCallsApi(`/admin/get-calls-admin?${queryString}`,access_token,refresh_token)
+    const transactionsData = await getTransactionsApi(`/payment/api/admin/get-transactions-admin?${queryString}`, access_token, refresh_token)
+    const callsData=await getAdminCallsApi(`/calling/api/admin/get-calls-admin?${queryString}`,access_token,refresh_token)
     
+    console.log(transactionsData);
+    console.log('callsdat',callsData)
     if (transactionsData?.data && !Array.isArray(transactionsData.data)) transactionsData.data = [transactionsData.data]
     if(callsData?.data && !Array.isArray(callsData.data)) callsData.data=[callsData.data]
     // console.log('callsData',callsData);

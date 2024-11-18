@@ -50,7 +50,7 @@ const ComponentUpdateNormalUser = ({ userData }) => {
             if (formData.get('avatar').name === '') formData.delete('avatar')
 
             formData.append('password', "Sarthak1singhal@");
-            const apiData = await userOnboardingApi('/admin/update-people', formData, cookies.get('access_token'))
+            const apiData = await userOnboardingApi('/user/api/admin/update-people', formData, cookies.get('access_token'))
 
             if (apiData?.success) {
                 MySwal.fire({
@@ -101,7 +101,7 @@ const ComponentUpdateNormalUser = ({ userData }) => {
     const promiseOptionsInterests = async () => {
         try {
             const cookies = new Cookies(null, { path: '/' })
-            const apiData = await getUserInterests('/details/get-interests', cookies.get('access_token'))
+            const apiData = await getUserInterests('/user/api/admin/get-interests', cookies.get('access_token'))
             return apiData?.data?.talksAbout ? apiData?.data?.talksAbout : [];
         } catch (err) {
             console.log('err in promiseOptionsInterests', err)
@@ -113,7 +113,7 @@ const ComponentUpdateNormalUser = ({ userData }) => {
         try {
 
             const cookies = new Cookies(null, { path: '/' })
-            const apiData = await getUserInterests('/details/get-interests', cookies.get('access_token'))
+            const apiData = await getUserInterests('/user/api/admin/get-interests', cookies.get('access_token'))
             return apiData?.data?.languages ? apiData?.data?.languages : [];
         } catch (err) {
             console.log('err in promiseOptionsLanguages', err)

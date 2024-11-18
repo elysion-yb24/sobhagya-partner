@@ -13,7 +13,7 @@ function updateAccessToken(res) {
 }
 export const updateTeamMemberPermissions = async (body, cookies) => {
     try {
-        const apiResponse = await fetch(`${API_URL}/team/update-team-member-permissions`, {
+        const apiResponse = await fetch(`${API_URL}/auth/api/team/update-team-member-permissions`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -34,7 +34,7 @@ export const updateTeamMemberPermissions = async (body, cookies) => {
 
 export const updateTeamMemberRole = async (body, cookies) => {
     try {
-        const apiResponse = await fetch(`${API_URL}/team/update-team-member-role`, {
+        const apiResponse = await fetch(`${API_URL}/auth/api/team/update-team-member-role`, {
             method: 'POST',
             credentials: 'include',
             headers: {

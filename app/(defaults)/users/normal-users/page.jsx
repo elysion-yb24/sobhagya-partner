@@ -25,7 +25,7 @@ async function page({
     if(searchParamsMissing){
         redirect('normal-users?'+queryString)
     }
-    const normalUsersData=await getNormalUsers(`/admin/get-users-admin?${queryString}`,access_token,refresh_token)
+    const normalUsersData=await getNormalUsers(`/user/api/admin/get-users-admin?skip=0&limit=10?${queryString}`,access_token,refresh_token)
     // console.log(normalUsersData.data.user,"normalUser");
     // if(normalUsersData?.data?.user && !Array.isArray(normalUsersData.data.user)) normalUsersData.data.user=[normalUsersData.data.user]
     // console.log(Array.isArray(normalUsersData.data.user))

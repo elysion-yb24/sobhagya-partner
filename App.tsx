@@ -53,7 +53,7 @@ function App({ children }: PropsWithChildren) {
         // fetch user
         setIsLoading(true);
         try {
-            const apiData = await getUserProfile('/team/get-team-profile', cookies.get('access_token'), cookies.get('token'))
+            const apiData = await getUserProfile('/auth/api/team/get-team-profile', cookies.get('access_token'), cookies.get('token'))
             if (apiData.success) {
                 dispatch(addUser(apiData.data))
             } else {

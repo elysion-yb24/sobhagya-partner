@@ -94,7 +94,7 @@ function ComponentReadNormalUsers({ usersData }) {
                 blockedReason: selectedUser?.blockedReason || '',
             }
             let access_token = cookies.get('access_token')
-            let result = await managePartnerPermissions('/team/block-unblock-partner', access_token, body)
+            let result = await managePartnerPermissions('/user/api/admin/block-unblock-partner', access_token, body)
             if (result?.success) {
                 MySwal.fire({
                     title: result?.message,

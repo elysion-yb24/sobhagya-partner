@@ -38,7 +38,7 @@ function ComponentPaymentDetails({ paymentDetails }) {
                 userId,
                 isApproved
             }
-            const apiRes = await updateApproveorDecline('/team/approve-payment-details', access_token, body)
+            const apiRes = await updateApproveorDecline('/user/api/admin/approve-payment-details', access_token, body)
             if (apiRes.success) {
                 MySwal.fire({
                     title: 'Success',

@@ -14,9 +14,9 @@ async function page({
     }
     
     const queryString=buildQuery(searchParams)
-    const transactionsData=await getTransactionsApi(`/admin/get-transactions-admin?${queryString}`,access_token,refresh_token)
+    const transactionsData=await getTransactionsApi(`/payment/api/admin/get-transactions-admin?${queryString}`,access_token,refresh_token)
 
-    // console.log("🚀 ~ apiData before:", transactionsData)
+    console.log("🚀 ~ apiData before:", transactionsData)
     if(transactionsData?.data && !Array.isArray(transactionsData.data)) transactionsData.data=[transactionsData.data]
     // console.log("🚀 ~ apiData after:", transactionsData)
     return (

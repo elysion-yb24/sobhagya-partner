@@ -27,7 +27,7 @@ const ComponentPartnerOnboarding = () => {
 
         formData.append('password', "Sarthak1singhal@");
         setDisableSubmit(true);
-        const apiData = await userOnboardingApi('/admin/add-people', formData, cookies.get('access_token'))
+        const apiData = await userOnboardingApi('/auth/api/team/add-people', formData, cookies.get('access_token'))
         if (apiData?.success) {
             MySwal.fire({
                 title: apiData?.message,
@@ -58,7 +58,7 @@ const ComponentPartnerOnboarding = () => {
     const promiseOptionsInterests = async () => {
         try {
             const cookies = new Cookies(null, { path: '/' })
-            const apiData = await getUserInterests('/details/get-interests', cookies.get('access_token'))
+            const apiData = await getUserInterests('/user/api/admin/get-interests', cookies.get('access_token'))
             return apiData?.data?.talksAbout ? apiData?.data?.talksAbout : [];
         } catch (err) {
             console.log('err in promiseOptionsInterests', err)
@@ -70,7 +70,7 @@ const ComponentPartnerOnboarding = () => {
         try {
 
             const cookies = new Cookies(null, { path: '/' })
-            const apiData = await getUserInterests('/details/get-interests', cookies.get('access_token'))
+            const apiData = await getUserInterests('/user/api/admin/get-interests', cookies.get('access_token'))
             return apiData?.data?.languages ? apiData?.data?.languages : [];
         } catch (err) {
             console.log('err in promiseOptionsLanguages', err)

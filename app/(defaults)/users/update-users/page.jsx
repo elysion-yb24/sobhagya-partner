@@ -9,7 +9,7 @@ async function page({
     const access_token = cookies().get('access_token')?.value
     const refresh_token = cookies().get('token')?.value;
     const queryString = buildQuery(searchParams)
-    const userData = await getNormalUsers(`/admin/get-users-admin?${queryString}`, access_token, refresh_token)
+    const userData = await getNormalUsers(`/user/api/admin/get-users-admin?${queryString}`, access_token, refresh_token)
     // console.log('userData', userData)
     return <ComponentUpdateNormalUser userData={userData} />
 }

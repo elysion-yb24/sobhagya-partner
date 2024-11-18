@@ -9,7 +9,7 @@ async function page({
     const refresh_token=cookies().get('token')?.value
     
     const queryString=buildQuery(searchParams)
-    const callsData=await getAdminCallsApi(`/admin/get-calls-admin?${queryString}`,access_token,refresh_token)
+    const callsData=await getAdminCallsApi(`/calling/api/admin/get-calls-admin?${queryString}`,access_token,refresh_token)
 
     // console.log("🚀 ~ apiData before:", callsData)
     if(callsData?.data && !Array.isArray(callsData.data)) callsData.data=[callsData.data]
