@@ -1,7 +1,7 @@
 'use client'
 import { DataTable } from "mantine-datatable";
 import IconCaretDown from '@/components/icon/icon-caret-down';
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
@@ -15,8 +15,16 @@ function ComponentPaymentDetails({ paymentDetails }) {
     const [initialRecords, setInitialRecords] = useState(paymentDetails?.data || []);
     const isRtl = useSelector((state) => state.themeConfig.rtlClass) === 'rtl';
     const [isMounted, setIsMounted] = useState(false);
+    const searchParams=useSearchParams();
+    const pathName=usePathname();
     const MySwal = withReactContent(Swal);
     const router=useRouter();
+
+    const [formData, setFormData] = useState({
+        skip: Number(searchParams.get('skip')) || 0,
+        limit: 10
+    })
+
     const roleStatusColor = (role) => {
         const color = ['primary', 'secondary', 'success', 'danger', 'warning', 'info'];
         role = role.toLowerCase();
@@ -28,6 +36,23 @@ function ComponentPaymentDetails({ paymentDetails }) {
         setIsMounted(true);
     }, []);
 
+
+    const handleQuery = (paramsFormData) => {
+        try {
+            setLoading(true)
+            const params = new URLSearchParams(searchParams)
+            for (let key in paramsFormData) {
+                params.set(key, paramsFormData[key])
+            }
+            router.push(`${pathName}?${params.toString()}`, { scroll: false })
+            setTimeout(() => {
+                setLoading(false)
+            }, 1000)
+        } catch (err) {
+            alert('err', err)
+            setLoading(false)
+        }
+    }
 
     const approveorDecline = async (userId, isApproved) => {
         try {
@@ -73,6 +98,7 @@ function ComponentPaymentDetails({ paymentDetails }) {
         setInitialRecords(paymentDetails?.data || []);  
         setLoading(false)
     },[paymentDetails])
+
     return (
         <div>
 
@@ -95,25 +121,22 @@ function ComponentPaymentDetails({ paymentDetails }) {
                         //     }
                         // }}
                         columns={[
-                            {
-                                accessor: '_id',
-                                title: 'Transaction Id',
-                                sortable: true,
-                                render: ({ _id }) => <strong className="text-info">{_id}</strong>,
-                            },
+                            
                             {
                                 accessor: 'userId',
                                 title: 'User Id',
                                 sortable: true,
-                                render: ({ userId }) => (
+                                render:({ userId }) => {
+                                    return (
                                     <div className="flex items-center gap-2">
                                         <div>{userId}</div>
                                     </div>
-                                ),
+                                    )
+                                },
                             },
                             {
                                 accessor: 'bankAccountNumber',
-                                title: 'Account Number',
+                                title: 'Acc No',
                                 sortable: true,
                                 render: ({ bankAccountNumber }) => (
                                     <div className="flex items-center gap-2">
@@ -123,15 +146,14 @@ function ComponentPaymentDetails({ paymentDetails }) {
                             },
                             {
                                 accessor: 'ifscCode',
-                                title: 'IFSC Code',
+                                title: 'IFSC',
                                 render: ({ ifscCode }) => <div className="flex items-center gap-2">
                                     <div>{ifscCode || 'N/A'}</div>
                                 </div>
                             },
                             {
                                 accessor: 'accountHolderName',
-                                title: 'Account Holder Name',
-                                sortable: true,
+                                title: 'Acc Name',
                                 render: ({ accountHolderName }) => (
                                     <div className="flex items-center gap-2">
                                         <div className="font-bold">{accountHolderName || 'N/A'}</div>
@@ -168,12 +190,19 @@ function ComponentPaymentDetails({ paymentDetails }) {
                             {
                                 accessor: 'updatedAt',
                                 title: 'Last Updated',
+                                sortable:true,
                                 render: ({ updatedAt }) => {
                                     const tempDate = new Date(updatedAt);
                                     return <div className="flex items-center justify-center">
                                         <span className={`font-bold p-2`}>{tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear() + ' ' + tempDate.getHours() + ':' + tempDate.getMinutes() + ':' + tempDate.getSeconds()}</span>
                                     </div>
                                 }
+                            },
+                            {
+                                accessor: '_id',
+                                title: 'Transaction Id',
+                                sortable: true,
+                                render: ({ _id }) => <strong className="text-info">{_id}</strong>,
                             }
                         ]}
                         idAccessor='_id'
@@ -185,7 +214,42 @@ function ComponentPaymentDetails({ paymentDetails }) {
                     />
                 )}
             </div>
-        </div>
+
+             {/* For pagination */}
+             <ul className="inline-flex items-center space-x-1 rtl:space-x-reverse m-auto mt-4">
+                    {/* Prev button */}
+                    <li>
+                        <button
+                            type="button"
+                            className={`flex justify-center rounded-full bg-white-light p-2 font-semibold text-dark transition hover:bg-primary hover:text-white dark:bg-[#191e3a] dark:text-white-light dark:hover:bg-primary ${formData.skip === 0 && 'cursor-not-allowed hover:bg-primary-light'}`}
+                            onClick={() => {
+                                let updatedFormData = { ...formData, skip: Number(formData.skip) - 10 }
+                                setFormData(updatedFormData);
+                                handleQuery(updatedFormData);
+                            }}
+                            disabled={formData.skip === 0}
+                        >
+                            <IconCaretDown className="h-5 w-5 rotate-90 rtl:-rotate-90" />
+                        </button>
+                    </li>
+
+                    {/* Next Button */}
+                    <li>
+                        <button
+                            type="button"
+                            className={`flex justify-center rounded-full bg-white-light p-2 font-semibold text-dark transition hover:bg-primary hover:text-white dark:bg-[#191e3a] dark:text-white-light dark:hover:bg-primary ${initialRecords.length < 10 && 'cursor-not-allowed hover:bg-primary-light'}`}
+                            onClick={() => {
+                                let updatedFormData = { ...formData, skip: Number(formData.skip) + 10 }
+                                setFormData(updatedFormData);
+                                handleQuery(updatedFormData);
+                            }}
+                            disabled={initialRecords.length < 10}
+                        >
+                            <IconCaretDown className="h-5 w-5 -rotate-90 rtl:rotate-90" />
+                        </button>
+                    </li>
+                </ul>
+            </div>
     );
 }
 

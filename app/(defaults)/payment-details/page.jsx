@@ -1,10 +1,25 @@
 import ComponentPaymentDetails from '@/components/payment-details/component-payment-details';
-import { getPaymentsList } from '@/utils';
+import { buildQuery, getPaymentsList } from '@/utils';
 import { cookies } from 'next/headers';
-async function page() {
+import { redirect } from 'next/navigation';
+async function page({
+    searchParams
+}) {
     const access_token = cookies().get('access_token')?.value
     const token=cookies().get('token')?.value
-    const paymentListData=await getPaymentsList('/user/api/admin/list-to-approve-payment-details',access_token,token)
+
+    let searchParamsMissing=false;
+    if(!searchParams.skip || !searchParams.limit){
+        searchParamsMissing=true
+        if(!searchParams.skip) searchParams.skip=0
+        if(!searchParams.limit) searchParams.limit=10
+    }
+    const queryString=buildQuery(searchParams)
+
+    if(searchParamsMissing){
+        redirect('payment-details?'+queryString)
+    }
+    const paymentListData=await getPaymentsList(`/user/api/admin/list-to-approve-payment-details?${queryString}`,access_token,token)
     return (
         <div>
             <ComponentPaymentDetails paymentDetails={paymentListData}/>
