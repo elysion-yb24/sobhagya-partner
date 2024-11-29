@@ -2,12 +2,12 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { IRootState } from '@/store';
-import { toggleRTL, toggleTheme, toggleMenu, toggleLayout, toggleAnimation, toggleNavbar, toggleSemidark } from '@/store/themeConfigSlice';
+import { toggleRTL, toggleTheme, toggleMenu, toggleLayout, toggleAnimation, toggleNavbar, toggleSemidark, toggleSidebar } from '@/store/themeConfigSlice';
 import Loading from '@/components/layouts/loading';
 import { getTranslation } from '@/i18n';
 import { addUser } from './store/userSlice';
 import Cookies from 'universal-cookie';
-import { getUserProfile } from './utils';
+import { getProfile, getUserProfile } from './utils';
 import { useRouter } from 'next/navigation';
 import { AppProgressBar } from 'next-nprogress-bar';
 
@@ -15,7 +15,7 @@ function App({ children }: PropsWithChildren) {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const dispatch = useDispatch();
     const { initLocale } = getTranslation();
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter()
     const cookies = new Cookies(null, { path: '/' })
 
@@ -32,48 +32,39 @@ function App({ children }: PropsWithChildren) {
 
     }, [dispatch, initLocale, themeConfig.theme, themeConfig.menu, themeConfig.layout, themeConfig.rtlClass, themeConfig.animation, themeConfig.navbar, themeConfig.locale, themeConfig.semidark]);
 
-    // useEffect(() => {
-    //     const handleVisibilityChange = () => {
-    //         if (document.visibilityState === "visible") {
-    //             // Check if the user is authenticated
-    //             checkAuthentication();
-    //         }
-    //     };
-
-    //     // Listen for the visibility change event
-    //     document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    //     // Cleanup the event listener on component unmount
-    //     return () => {
-    //         document.removeEventListener("visibilitychange", handleVisibilityChange);
-    //     };
-    // }, []);
-
     async function checkAuthentication() {
         // fetch user
         setIsLoading(true);
         try {
-            const apiData = await getUserProfile('/auth/api/team/get-team-profile', cookies.get('access_token'), cookies.get('token'))
+            const apiData = await getUserProfile('/profile', cookies.get('access_token'), cookies.get('token'))
             if (apiData.success) {
                 dispatch(addUser(apiData.data))
             } else {
                 dispatch(addUser(null));
+            }
+            const access_token=cookies.get('access_token')
+            const res=await getProfile('/profile',access_token)
+            if(!res?.success){
                 cookies.remove('access_token');
                 cookies.remove('token');
                 router.replace('/auth/login');
+                dispatch(addUser(null))
+            }else{
+                dispatch(addUser(res?.data))
             }
-
         }
         catch (err) {
-            dispatch(addUser(null));
-            cookies.remove('access_token');
-            cookies.remove('token');
-            router.replace('/auth/login');
-            console.error(err);
+            console.log('err in checkAuthentication', err)
         } finally {
             setIsLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (themeConfig.sidebar) {
+            dispatch(toggleSidebar());
+        }
+    }, [dispatch]);
 
     useEffect(() => {
         checkAuthentication();

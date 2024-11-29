@@ -9,16 +9,16 @@ const ContentAnimation = ({ children }: { children: React.ReactNode }) => {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const [animation, setAnimation] = useState(themeConfig.animation);
 
-    useEffect(() => {
-        setAnimation(themeConfig.animation);
-    }, [themeConfig.animation]);
+    // useEffect(() => {
+    //     setAnimation(themeConfig.animation);
+    // }, [themeConfig.animation]);
 
-    useEffect(() => {
-        setAnimation(themeConfig.animation);
-        setTimeout(() => {
-            setAnimation('');
-        }, 1100);
-    }, [pathname]);
+    // useEffect(() => {
+    //     setAnimation(themeConfig.animation);
+    //     setTimeout(() => {
+    //         setAnimation('');
+    //     }, 1100);
+    // }, [pathname]);
     return (
         <>
             {/* BEGIN CONTENT AREA */}

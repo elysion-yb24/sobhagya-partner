@@ -17,12 +17,12 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                 <ScrollToTop />
 
                 {/* BEGIN APP SETTING LAUNCHER */}
-                <Setting />
+                {/* <Setting /> */}
                 {/* END APP SETTING LAUNCHER */}
 
                 <MainContainer>
                     {/* BEGIN SIDEBAR */}
-                    <Sidebar />
+                    {/* <Sidebar /> */}
                     {/* END SIDEBAR */}
                     <div className="main-content flex min-h-screen flex-col">
                         {/* BEGIN TOP NAVBAR */}

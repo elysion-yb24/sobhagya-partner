@@ -3,7 +3,7 @@ import themeConfig from '@/theme.config';
 
 const initialState = {
     isDarkMode: false,
-    sidebar: false,
+    sidebar: true,
     theme: themeConfig.theme,
     menu: themeConfig.menu,
     layout: themeConfig.layout,
@@ -60,7 +60,7 @@ const themeConfigSlice = createSlice({
         },
         toggleMenu(state, { payload }) {
             payload = payload || state.menu; // vertical, collapsible-vertical, horizontal
-            localStorage.setItem('menu', payload);
+            // localStorage.setItem('menu', payload);
             state.menu = payload;
         },
         toggleLayout(state, { payload }) {

@@ -351,3 +351,95 @@ export const managePartnerPermissions=async(endpoint,access_token,body)=>{
         return { data: null, success: false, message: 'Internal Server Error' }
     }
 }
+
+
+export const LoginSendOtp=async(endpoint,body)=>{
+    try{
+        const apiResponse = await fetch(`${API_URL}${endpoint}`, {
+            method:'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        const apiData = await apiResponse.json();
+        return apiData
+    }catch(err){
+        console.error('Err in Login Send Otp', err)
+        return { data: null, success: false, message: 'Internal Server Error' }
+    }
+}
+
+export const LoginVerifyOtp=async(endpoint,body)=>{
+    try{
+        const apiResponse = await fetch(`${API_URL}${endpoint}`, {
+            method:'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        updateAccessToken(apiResponse)
+        const apiData = await apiResponse.json();
+        return apiData
+    }catch(err){
+        console.error('Err in Login Verify Otp', err)
+        return { data: null, success: false, message: 'Internal Server Error' }
+    }
+}
+
+export const getProfile=async(endpoint,access_token)=>{
+    try{
+        const apiResponse = await fetch(`${API_URL}${endpoint}`, {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + access_token,
+            },
+        })
+        updateAccessToken(apiResponse)
+        const apiData = await apiResponse.json();
+        return apiData
+    }catch(err){
+        console.error('Err in getUserProfile', err)
+        return { data: null, success: false, message: 'Internal Server Error' }
+    }
+}
+
+export const post=async(endpoint,access_token,body)=>{
+    try{
+        const apiResponse = await fetch(`${API_URL}${endpoint}`, {  
+            method:'POST',
+            body: JSON.stringify(body),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + access_token,
+            },
+        })
+        updateAccessToken(apiResponse)
+        const apiData = await apiResponse.json();
+        return apiData
+    }catch(err){
+        console.error('Err in changePartnerStatus', err)
+        return { data: null, success: false, message: 'Internal Server Error' }
+    }
+}
+
+export const get=async(endpoint,access_token)=>{
+    try{
+        const apiResponse = await fetch(`${API_URL}${endpoint}`, {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + access_token,
+            },
+        })
+        updateAccessToken(apiResponse)
+        const apiData = await apiResponse.json();
+        return apiData
+    }catch(err){
+        console.error('Err in getStats', err)
+        return { data: null, success: false, message: 'Internal Server Error' }
+    }
+}
