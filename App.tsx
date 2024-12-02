@@ -89,7 +89,11 @@ function App({ children }: PropsWithChildren) {
     }, [dispatch]);
 
     useEffect(() => {
-        checkAuthentication();
+        if(cookies.get('access_token') && cookies.get('token')){
+            checkAuthentication();
+        }else {
+            router.replace('/auth/login');
+        }
     }, [cookies.get('access_token'), cookies.get('token')]);
     return (
         <div
