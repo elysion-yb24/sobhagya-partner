@@ -30,6 +30,7 @@ function VerifyOtpComponent({phone}) {
                 title: res?.message
             })
             router.replace('/');
+            router.refresh()
         }
         else{
             Toast.fire({

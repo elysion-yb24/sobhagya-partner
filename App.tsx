@@ -41,16 +41,7 @@ function App({ children }: PropsWithChildren) {
                 dispatch(addUser(apiData.data))
             } else {
                 dispatch(addUser(null));
-            }
-            const access_token=cookies.get('access_token')
-            const res=await getProfile('/profile',access_token)
-            if(!res?.success){
-                cookies.remove('access_token');
-                cookies.remove('token');
                 router.replace('/auth/login');
-                dispatch(addUser(null))
-            }else{
-                dispatch(addUser(res?.data))
             }
         }
         catch (err) {
