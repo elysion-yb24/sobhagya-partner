@@ -66,6 +66,7 @@ function App({ children }: PropsWithChildren) {
             }
         }
         catch (err) {
+            dispatch(addUser(null));
             Toast.fire({
                 title:"Something went wrong",
                 icon:"error"
@@ -89,7 +90,7 @@ function App({ children }: PropsWithChildren) {
 
     useEffect(() => {
         checkAuthentication();
-    }, [])
+    }, [cookies.get('access_token'), cookies.get('token')]);
     return (
         <div
             className={`${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass
