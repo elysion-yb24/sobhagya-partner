@@ -374,6 +374,7 @@ export const LoginVerifyOtp=async(endpoint,body)=>{
     try{
         const apiResponse = await fetch(`${API_URL}${endpoint}`, {
             method:'POST',
+            credentials:'include',
             body: JSON.stringify(body),
             headers: {
                 'Content-Type': 'application/json',
