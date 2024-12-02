@@ -2,14 +2,23 @@
 
 import Lottie from "lottie-react";
 import phoneOtpAnimation from "./phoneOtp.json";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { LoginVerifyOtp } from "@/utils";
+import { LoginSendOtp, LoginVerifyOtp } from "@/utils";
 import dynamic from "next/dynamic";
+import { useTimeouts } from "yet-another-react-lightbox";
+import { useTimer } from "react-timer-hook";
 const OTPInput = dynamic(() => import("react-otp-input"), { ssr: false });
 function VerifyOtpComponent({phone}) {
-    const [isChecked,setIsChecked]=useState(true);
+    const [disable,setDisable]=useState(false);
+    const time = new Date();
+    const {
+        seconds,
+        isRunning,
+        start,
+        restart
+    }=useTimer({expiryTimestamp:time.setSeconds(time.getSeconds()+30),autoStart:false})
     const router=useRouter();
     
     const Toast=Swal.mixin({
@@ -43,6 +52,44 @@ function VerifyOtpComponent({phone}) {
         return;
 
     }
+
+    const handleResendOtp=async()=>{
+        try{
+            setDisable(true);
+            const res=await LoginSendOtp("/auth/signup-login/send-otp",{phone});
+            if(res?.success){
+                Toast.fire({
+                    icon: 'success',
+                    title: 'OTP resent successfully'
+                })
+                const time = new Date();
+                time.setSeconds(time.getSeconds() + 30);
+                restart(time)
+            }
+            else{
+                Toast.fire({
+                    icon: 'error',
+                    title: res?.message
+                })
+            }
+        }catch(err){
+            console.log(err);
+            Toast.fire({
+                icon: 'error',
+                title: 'Something went wrong'
+            })
+        }finally{
+            setDisable(false);
+        }
+        
+        
+        return;
+    }
+    useEffect(()=>{
+        const time = new Date();
+        time.setSeconds(time.getSeconds() + 30);
+        start(time);
+    },[])
     return (
         <div className="max-w-[400px] m-auto min-h-screen flex justify-center items-center">
             <div>
@@ -58,7 +105,12 @@ function VerifyOtpComponent({phone}) {
                     shouldAutoFocus
                     skipDefaultStyles
                 />
-                <div className="my-4 text-sm">Resend Otp in 12s</div>
+                {isRunning
+                ?
+                <div className="my-4 text-sm">Resend Otp in {seconds} secs</div>
+                :
+                <div className="my-4 text-sm text-blue-500 font-bold cursor-pointer" onClick={handleResendOtp} disabled={disable}>Resend Now</div>
+                }
                 <button type="submit" className="btn btn-primary my-8 w-full" disabled={!otp ||otp.length!=4}>
                     Verify Otp
                 </button>

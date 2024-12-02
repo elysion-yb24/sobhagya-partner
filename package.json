@@ -57,6 +57,7 @@
         "react-simplemde-editor": "^5.2.0",
         "react-sortablejs": "^6.1.4",
         "react-text-mask": "^5.5.0",
+        "react-timer-hook": "^3.0.8",
         "sortablejs": "^1.15.0",
         "sweetalert2": "^11.7.1",
         "sweetalert2-react-content": "^5.0.7",
