@@ -67,7 +67,7 @@ const Sidebar = () => {
 
     useEffect(() => {
         setActiveRoute();
-        if (window.innerWidth < 1024 && themeConfig.sidebar) {
+        if (window.innerWidth < 3000 && themeConfig.sidebar) {
             dispatch(toggleSidebar());
         }
     }, [pathname]);
