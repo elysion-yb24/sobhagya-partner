@@ -2,7 +2,7 @@
 import SendOtpComponent from '@/components/login/component-sendOtp';
 import VerifyOtpComponent from '@/components/login/component-verifyOtp'
 import { useState } from 'react';
-function page() {
+function LoginComponent() {
     const [screen,setScreen]=useState('sendOtp');
     const [phone,setPhone]=useState('');
     return (
@@ -16,4 +16,4 @@ function page() {
     );
 }
 
-export default page;
+export default LoginComponent;
