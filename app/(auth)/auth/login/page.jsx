@@ -1,19 +1,7 @@
-'use client'
-import SendOtpComponent from '@/components/login/component-sendOtp';
-import VerifyOtpComponent from '@/components/login/component-verifyOtp'
-import { useState } from 'react';
-function LoginComponent() {
-    const [screen,setScreen]=useState('sendOtp');
-    const [phone,setPhone]=useState('');
-    return (
-        <div className='max-h-screen px-2'>
-        {
-            screen=='sendOtp' ? <SendOtpComponent setScreen={setScreen} setPhone={setPhone}/>
-             :
-            <VerifyOtpComponent phone={phone}/>
-        }
-        </div>
-    );
-}
+import LoginComponent from '@/components/login/index';
+import React from 'react';
 
-export default LoginComponent;
+const Login=()=>{
+    return <LoginComponent/>
+}
+export default Login; 
