@@ -3,11 +3,11 @@
 import Lottie from "lottie-react";
 import phoneOtpAnimation from "./phoneOtp.json";
 import { useState } from "react";
-import OTPInput from "react-otp-input";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { LoginVerifyOtp } from "@/utils";
-
+import dynamic from "next/dynamic";
+const OTPInput = dynamic(() => import("react-otp-input"), { ssr: false });
 function VerifyOtpComponent({phone}) {
     const [isChecked,setIsChecked]=useState(true);
     const router=useRouter();
