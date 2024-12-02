@@ -65,12 +65,6 @@ const Sidebar = () => {
         }
     }, []);
 
-    useEffect(() => {
-        setActiveRoute();
-        if (window.innerWidth < 3000 && themeConfig.sidebar) {
-            dispatch(toggleSidebar());
-        }
-    }, [pathname]);
 
     const setActiveRoute = () => {
         let allLinks = document.querySelectorAll('.sidebar ul a.active');

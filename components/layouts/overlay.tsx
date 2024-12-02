@@ -9,7 +9,7 @@ const Overlay = () => {
     return (
         <>
             {/* sidebar menu overlay */}
-            <div className={`${(!themeConfig.sidebar && 'hidden') || ''}  bg-[blfixed inset-0 z-50ack]/60 hidden`} onClick={() => dispatch(toggleSidebar())}></div>
+            <div className={`${(!themeConfig.sidebar && 'hidden') || 'hidden'}  bg-[blfixed inset-0 z-50ack]/60 hidden`} onClick={() => dispatch(toggleSidebar())}></div>
         </>
     );
 };
