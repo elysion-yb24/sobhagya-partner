@@ -47,7 +47,7 @@ function App({ children }: PropsWithChildren) {
             const apiData = await getUserProfile('/profile', cookies.get('access_token'), cookies.get('token'))
             if (apiData.success) {
                 // console.log(apiData.datada)
-                if(apiData?.data?.data?.role=="user"){
+                if(apiData?.data?.role=="user"){
                     Toast.fire({
                         title:"Login not allowed",
                         icon:"error"
