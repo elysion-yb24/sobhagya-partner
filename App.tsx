@@ -92,6 +92,7 @@ function App({ children }: PropsWithChildren) {
         if(cookies.get('access_token') && cookies.get('token')){
             checkAuthentication();
         }else {
+            setIsLoading(false);
             router.replace('/auth/login');
         }
     }, [cookies.get('access_token'), cookies.get('token')]);
