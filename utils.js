@@ -132,7 +132,7 @@ export const userOnboardingApi = async (endpoint, formData,access_token) => {
     }
 }
 
-export const getUserProfile = async (endpoint, access_token,refresh_token) => {
+export const getUserProfile = async (endpoint, access_token) => {
     // console.log(access_token,refresh_token)
     try {
         const apiResponse = await fetch(`${API_URL}${endpoint}`, {

@@ -44,7 +44,7 @@ function App({ children }: PropsWithChildren) {
         // fetch user
         try {
             setIsLoading(true);
-            const apiData = await getUserProfile('/profile', cookies.get('access_token'), cookies.get('token'))
+            const apiData = await getUserProfile('/profile', cookies.get('access_token'))
             if (apiData.success) {
                 // console.log(apiData.datada)
                 if(apiData?.data?.role=="user"){
@@ -89,13 +89,13 @@ function App({ children }: PropsWithChildren) {
     }, [dispatch]);
 
     useEffect(() => {
-        if(cookies.get('access_token') && cookies.get('token')){
+        if(cookies.get('access_token')){
             checkAuthentication();
         }else {
             setIsLoading(false);
             router.replace('/auth/login');
         }
-    }, [cookies.get('access_token'), cookies.get('token')]);
+    }, [cookies.get('access_token')]);
     return (
         <div
             className={`${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass
