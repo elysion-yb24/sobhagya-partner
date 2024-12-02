@@ -10,12 +10,20 @@ import Cookies from 'universal-cookie';
 import { getProfile, getUserProfile } from './utils';
 import { useRouter } from 'next/navigation';
 import { AppProgressBar } from 'next-nprogress-bar';
+import Swal from 'sweetalert2';
 
 function App({ children }: PropsWithChildren) {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
+    const Toast=Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+    })
     const dispatch = useDispatch();
     const { initLocale } = getTranslation();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter()
     const cookies = new Cookies(null, { path: '/' })
 
@@ -34,17 +42,38 @@ function App({ children }: PropsWithChildren) {
 
     async function checkAuthentication() {
         // fetch user
-        setIsLoading(true);
         try {
+            setIsLoading(true);
             const apiData = await getUserProfile('/profile', cookies.get('access_token'), cookies.get('token'))
             if (apiData.success) {
+                // console.log(apiData.datada)
+                if(apiData?.data?.data?.role=="user"){
+                    Toast.fire({
+                        title:"Login not allowed",
+                        icon:"error"
+                    })
+                    cookies.remove('access_token');
+                    cookies.remove('token');
+                    router.replace('/auth/login');
+                }
                 dispatch(addUser(apiData.data))
             } else {
                 dispatch(addUser(null));
+                
+                cookies.remove('access_token');
+                cookies.remove('token');
                 router.replace('/auth/login');
             }
         }
         catch (err) {
+            Toast.fire({
+                title:"Something went wrong",
+                icon:"error"
+            })
+            cookies.remove('access_token');
+            cookies.remove('token');
+            router.replace('/auth/login');
+
             console.log('err in checkAuthentication', err)
         } finally {
             console.log('finally')
