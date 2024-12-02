@@ -36,7 +36,6 @@ function App({ children }: PropsWithChildren) {
         // fetch user
         setIsLoading(true);
         try {
-            console.log('try 1')
             const apiData = await getUserProfile('/profile', cookies.get('access_token'), cookies.get('token'))
             if (apiData.success) {
                 dispatch(addUser(apiData.data))
@@ -44,8 +43,6 @@ function App({ children }: PropsWithChildren) {
                 dispatch(addUser(null));
                 router.replace('/auth/login');
             }
-            console.log('try 2')
-
         }
         catch (err) {
             console.log('err in checkAuthentication', err)

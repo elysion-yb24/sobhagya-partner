@@ -29,8 +29,8 @@ function VerifyOtpComponent({phone}) {
                 icon: 'success',
                 title: res?.message
             })
-            // router.replace('/');
-            // router.refresh()
+            router.replace('/');
+            router.refresh()
         }
         else{
             Toast.fire({
