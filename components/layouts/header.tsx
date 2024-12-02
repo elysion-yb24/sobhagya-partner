@@ -34,6 +34,7 @@ import IconMenuMore from '@/components/icon/menu/icon-menu-more';
 import { usePathname, useRouter } from 'next/navigation';
 import { getTranslation } from '@/i18n';
 import Image from 'next/image';
+import Cookies from 'universal-cookie';
 
 const Header = () => {
     const pathname = usePathname();
@@ -41,6 +42,7 @@ const Header = () => {
     const router = useRouter();
     const { t, i18n } = getTranslation();
     const { data: userData } = useSelector((store:any) => store.user)
+    const cookies=new Cookies(null, { path: '/' })
     
     useEffect(() => {
         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -222,7 +224,10 @@ const Header = () => {
                                         </div>
                                     </li>
                                     <li className="border-t border-white-light dark:border-white-light/10">
-                                        <Link href="/auth/login" className="!py-3 text-danger">
+                                        <Link href="/auth/login"  className="!py-3 text-danger" onClickCapture={()=>{
+                                            cookies.remove('access_token');
+                                            cookies.remove('token');
+                                        }}>
                                             <IconLogout className="h-4.5 w-4.5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
                                             Sign Out
                                         </Link>
