@@ -32,7 +32,7 @@ function SendOtpComponent({ setScreen, setPhone }) {
             }
 
             //check if user exists or not
-            const existingData = await get(`/auth/check-if-exist`);
+            const existingData = await get(`/auth/check-if-exist?phone=${phoneNumber}`);
             if (existingData?.data) {
                 if(existingData?.data?.isExist==false){
                     Toast.fire({
@@ -42,7 +42,9 @@ function SendOtpComponent({ setScreen, setPhone }) {
                     e.target.reset();
                     return
                 }
-            }else throw new Error("Internal Server Error");
+            }else {
+                throw new Error("Internal Server Error");
+            }
 
             const res = await LoginSendOtp("/auth/signup-login/send-otp", { phone: phoneNumber });
             if (res?.success) {

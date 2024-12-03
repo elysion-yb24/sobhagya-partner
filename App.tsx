@@ -85,7 +85,6 @@ function App({ children }: PropsWithChildren) {
         }
     }, [dispatch]);
 
-    console.log(isLoading,"rendereing");
     useEffect(() => {
         if(cookies.get('access_token')){
             checkAuthentication();
