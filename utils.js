@@ -422,7 +422,7 @@ export const post=async(endpoint,access_token,body)=>{
         const apiData = await apiResponse.json();
         return apiData
     }catch(err){
-        console.error('Err in changePartnerStatus', err)
+        console.error('Err in '+ endpoint, err)
         return { data: null, success: false, message: 'Internal Server Error' }
     }
 }

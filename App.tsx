@@ -45,11 +45,10 @@ function App({ children }: PropsWithChildren) {
         try {
             setIsLoading(true);
             const apiData = await getUserProfile('/profile', cookies.get('access_token'))
-            if (apiData.success) {
-                // console.log(apiData.datada)
+            if (apiData?.success) {
                 if(apiData?.data?.role=="user"){
                     Toast.fire({
-                        title:"Login not allowed",
+                        title:"You are not authorized to login",
                         icon:"error"
                     })
                     cookies.remove('access_token');
@@ -59,7 +58,6 @@ function App({ children }: PropsWithChildren) {
                 dispatch(addUser(apiData.data))
             } else {
                 dispatch(addUser(null));
-                
                 cookies.remove('access_token');
                 cookies.remove('token');
                 router.replace('/auth/login');
@@ -75,9 +73,8 @@ function App({ children }: PropsWithChildren) {
             cookies.remove('token');
             router.replace('/auth/login');
 
-            console.log('err in checkAuthentication', err)
+            console.log('Err in checkAuthentication', err)
         } finally {
-            console.log('finally')
             setIsLoading(false);
         }
     }
@@ -88,6 +85,7 @@ function App({ children }: PropsWithChildren) {
         }
     }, [dispatch]);
 
+    console.log(isLoading,"rendereing");
     useEffect(() => {
         if(cookies.get('access_token')){
             checkAuthentication();
