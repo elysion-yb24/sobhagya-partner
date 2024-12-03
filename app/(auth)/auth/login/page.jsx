@@ -6,8 +6,9 @@ import { redirect } from 'next/navigation';
 const Login=()=>{
     const token=cookies().get('token');
     const access_token=cookies().get('access_token');
-    if(token?.value!="null" && access_token?.value!="null"){
-        redirect('/');
+
+    if(token && access_token){
+        if(access_token.value!="null") redirect('/');
     }
     return <LoginComponent/>
 }
