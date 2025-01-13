@@ -63,6 +63,7 @@ module.exports = {
                 },
             },
             fontFamily: {
+                inter: ['var(--font-inter)', 'sans-serif'],  // Use the custom CSS variable for Inter
                 nunito: ['var(--font-nunito)'],
             },
             spacing: {

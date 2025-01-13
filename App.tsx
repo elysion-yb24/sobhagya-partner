@@ -14,18 +14,18 @@ import Swal from 'sweetalert2';
 
 function App({ children }: PropsWithChildren) {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
-    const Toast=Swal.mixin({
+    const Toast = Swal.mixin({
         toast: true,
         position: 'top',
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
-    })
+    });
     const dispatch = useDispatch();
     const { initLocale } = getTranslation();
     const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter()
-    const cookies = new Cookies(null, { path: '/' })
+    const router = useRouter();
+    const cookies = new Cookies(null, { path: '/' });
 
     useEffect(() => {
         dispatch(toggleTheme(localStorage.getItem('theme') || themeConfig.theme));
@@ -37,43 +37,39 @@ function App({ children }: PropsWithChildren) {
         dispatch(toggleSemidark(localStorage.getItem('semidark') || themeConfig.semidark));
         // locale
         initLocale(themeConfig.locale);
-
-    }, [dispatch, initLocale, themeConfig.theme, themeConfig.menu, themeConfig.layout, themeConfig.rtlClass, themeConfig.animation, themeConfig.navbar, themeConfig.locale, themeConfig.semidark]);
+    }, [dispatch, initLocale, themeConfig]);
 
     async function checkAuthentication() {
-        // fetch user
         try {
             setIsLoading(true);
-            const apiData = await getUserProfile('/profile', cookies.get('access_token'))
+            const apiData = await getUserProfile('/profile', cookies.get('access_token'));
             if (apiData?.success) {
-                if(apiData?.data?.role=="user"){
+                if (apiData?.data?.role === "user") {
                     Toast.fire({
-                        title:"You are not authorized to login",
-                        icon:"error"
-                    })
+                        title: "You are not authorized to login",
+                        icon: "error"
+                    });
                     cookies.remove('access_token');
                     cookies.remove('token');
                     router.replace('/auth/login');
                 }
-                dispatch(addUser(apiData.data))
+                dispatch(addUser(apiData.data));
             } else {
                 dispatch(addUser(null));
                 cookies.remove('access_token');
                 cookies.remove('token');
                 router.replace('/auth/login');
             }
-        }
-        catch (err) {
+        } catch (err) {
             dispatch(addUser(null));
             Toast.fire({
-                title:"Something went wrong",
-                icon:"error"
-            })
+                title: "Something went wrong",
+                icon: "error"
+            });
             cookies.remove('access_token');
             cookies.remove('token');
             router.replace('/auth/login');
-
-            console.log('Err in checkAuthentication', err)
+            console.log('Err in checkAuthentication', err);
         } finally {
             setIsLoading(false);
         }
@@ -86,17 +82,17 @@ function App({ children }: PropsWithChildren) {
     }, [dispatch]);
 
     useEffect(() => {
-        if(cookies.get('access_token')){
+        if (cookies.get('access_token')) {
             checkAuthentication();
-        }else {
+        } else {
             setIsLoading(false);
             router.replace('/auth/login');
         }
-    }, [cookies.get('access_token')]);
+    }, [cookies]);
+
     return (
         <div
-            className={`${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass
-                } main-section relative font-nunito text-sm font-normal antialiased`}
+            className={`w-screen h-screen flex flex-col overflow-hidden ${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass} main-section relative font-nunito text-sm font-normal antialiased`}
         >
             {isLoading ? <Loading /> : children}
             <AppProgressBar

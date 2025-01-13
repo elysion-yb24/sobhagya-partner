@@ -1,22 +1,15 @@
-import ComponentsAuthRegisterForm from '@/components/auth/components-auth-register-form';
-import LanguageDropdown from '@/components/language-dropdown';
-import { Metadata } from 'next';
-import Link from 'next/link';
-import React, { useState } from 'react';
-import Image from "next/image";
+import KYCRegisterForm from '@/components/kyc/index';
+import React from 'react';
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-    title: 'Register Cover',
-};
-
-const CoverRegister = () => {
-    
+const KYC=()=>{
     return (
         <div 
         className="flex min-h-screen items-center justify-center bg-white px-6 py-10 sm:px-16 relative overflow-hidden"
         style={{
             backgroundImage: "url('/assets/images/Group-1.svg')", // Background image path
-            backgroundPosition: "right bottom 5%", // Adjust position
+            backgroundPosition: "right bottom", // Adjust position
             backgroundRepeat: "no-repeat", // Prevent tiling
             backgroundSize: "20%", // Adjust size as needed (e.g., 15%)
         }}>
@@ -25,7 +18,7 @@ const CoverRegister = () => {
                 <div className="mb-4 text-center"> 
                     <h1 className="text-xl font-extrabold font-inter">Sobhagya Registration</h1>
                 </div>
-                <ComponentsAuthRegisterForm />
+                <KYCRegisterForm/>
             </div>
                 <p className="absolute bottom-20 w-full text-center dark:text-white">
                     © {new Date().getFullYear()}. Elysion Softwares All Rights Reserved.
@@ -33,6 +26,5 @@ const CoverRegister = () => {
             </div>
         </div>
     );
-};
-
-export default CoverRegister;
+}
+export default KYC; 

@@ -3,15 +3,21 @@ import PanelCodeHighlight from '@/components/panel-code-highlight';
 import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 
-const ComponentsFormsFileUploadSingle = () => {
+interface ComponentsFormsFileUploadSingleProps {
+    title?: string;
+}
+
+const ComponentsFormsFileUploadSingle: React.FC<ComponentsFormsFileUploadSingleProps> = ({ title }) => {
     const [images, setImages] = useState<any>([]);
     const maxNumber = 69;
     const onChange = (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
         setImages(imageList as never[]);
     };
+
+    
     return (
         <PanelCodeHighlight
-            title="Single File Upload"
+            title={title?title:"Single File Upload"}
             codeHighlight={`import { useEffect, useState } from 'react';
 import 'file-upload-with-preview/dist/file-upload-with-preview.min.css';
 import ImageUploading, { ImageListType } from 'react-images-uploading';

@@ -8,7 +8,7 @@ function LoginComponent() {
     const [phone,setPhone]=useState('');
     
     return (
-        <div className='max-h-screen px-2'>
+        <div className='max-h-screen '>
         {
             screen=='sendOtp' ? <SendOtpComponent setScreen={setScreen} setPhone={setPhone}/>
              :

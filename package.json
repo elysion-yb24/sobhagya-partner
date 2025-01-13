@@ -20,6 +20,8 @@
         "@mantine/hooks": "^5.10.5",
         "@react-oauth/google": "^0.12.1",
         "@reduxjs/toolkit": "^1.9.1",
+        "@tensorflow-models/body-pix": "^2.2.1",
+        "@tensorflow/tfjs": "^4.22.0",
         "@tippyjs/react": "^4.2.6",
         "@types/node": "18.11.18",
         "@types/react": "18.0.27",
