@@ -7,8 +7,6 @@ import Image from "next/image";
 import { get, LoginSendOtp } from "@/utils";
 import Swal from 'sweetalert2';
 import Link from 'next/link';
-import * as bodyPix from "@tensorflow-models/body-pix";
-import "@tensorflow/tfjs"; 
 
 interface FormData {
     name: string;
@@ -215,69 +213,16 @@ const KYCRegisterForm=  () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
   
-    useEffect(() => {
-      const loadModel = async () => {
-        await bodyPix.load();
-      };
-      loadModel();
-    }, []);
   
     const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files ? event.target.files[0] : null;
-      if (file) {
-        const imageUrl = URL.createObjectURL(file);
-        setUploadedImage(imageUrl);
-  
-        const img = new window.Image();
-        img.src = imageUrl;
-        img.onload = async () => {
-          const width = img.width;
-          const height = img.height;
-          setImageDimensions({ width, height });
-  
-          const canvas = canvasRef.current;
-          const ctx = canvas?.getContext("2d");
-  
-          if (canvas && ctx) {
-            canvas.width = width;
-            canvas.height = height;
-  
-            // Load BodyPix model
-            const net = await bodyPix.load();
-            setLoading(true);
-  
-            // Segment the human from the image
-            const segmentation = await net.segmentPersonParts(img);
-  
-            // Get the image data
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-  
-            // Loop through all pixels and change the background to white
-            for (let i = 0; i < data.length; i += 4) {
-              const part = segmentation.data[i / 4]; // Get the segment part of the pixel
-  
-              // If the pixel is not part of the human (i.e., background), make it white
-              if (part === 0) {
-                data[i] = 255;     // Red
-                data[i + 1] = 255; // Green
-                data[i + 2] = 255; // Blue
-              }
-            }
-  
-            // Put the modified image data back to the canvas
-            ctx.putImageData(imageData, 0, 0);
-            setLoading(false);
-          }
-        };
-      }
+     
     };
   
     
       
-const handleEdit = () => {
-    // Add editing functionality if needed
-};
+    const handleEdit = () => {
+        // Add editing functionality if needed
+    };
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
