@@ -243,70 +243,48 @@ const KYCRegisterForm=  () => {
                 <>
                     {/* Step 1: Basics */}
                     <div className="justify-center items-center">
-                        <h1 className="text-3xl text-black font-inter text-center">Upload Your Adhaar Card</h1>
-                        <div className="flex flex-col items-center">
-                            {uploadedImage ? (
-                                <canvas
-                                ref={canvasRef}
-                                className="mx-auto my-[5%] bg-white p-2 rounded"
-                                style={{
-                                    maxWidth: "100%",
-                                    height: "auto",
-                                    display: "block",
-                                }}
-                                />
-                            ) : (
-                                <img
-                                className="mx-auto my-[5%]"
-                                src="/assets/images/Group-2.png" // Placeholder image
-                                alt="Placeholder"
-                                width={150}
-                                height={100}
-                                />
-                            )}
-
-                            <input
-                                type="file"
-                                accept="image/*"
-                                ref={fileInputRef}
-                                onChange={handleImageUpload}
-                                className="hidden"
-                            />
-                            <button
-                                type="button"
-                                className="flex items-center justify-center w-[45%] py-2 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-3"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <img
-                                src="/assets/images/Upload.png"
-                                alt="Upload Icon"
-                                width={30}
-                                height={30}
-                                className="h-auto w-auto"
-                                />
-                                Upload Adhaar
-                            </button>
-                            </div>
-
-                        <div className="flex justify-center items-center my-[5%] gap-4 mt-6">
-                            <div className="border border-[#FFCD66] h-[50px] mx-4"></div>
-                            <button
-                                type="button"
-                                className="flex items-center justify-center w-[45%] py-2 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-3"
-                                onClick={handleEdit}
-                            >
-                                <Image
-                                    src="/assets/images/Edit.png"
-                                    alt="Edit Icon"
+                     <h1 className="text-xl text-black font-bold font-inter text-center">
+                        Upload Your Aadhar Card
+                         </h1>
+                     <Image
+                       className="mx-auto my-[5%]"
+                       src="/assets/images/Group-2.png" // Path to your logo image
+                       alt="Logo"
+                       width={150}
+                       height={100}
+                       priority
+                     />   
+                      <div className="flex justify-center items-center my-[5%] gap-4 mt-6"> {/* Flex container for buttons */}
+                                <button 
+                                    type="button" 
+                                    className="flex items-center justify-center w-[45%] py-2 px-2 bg-white border border-[#FFCD66] text-black font-inter  rounded-lg gap-2"
+                                ><Image
+                                    src="/assets/images/Upload.png" // Path to your logo image
+                                    alt="Logo"
                                     width={30}
                                     height={30}
                                     className="h-auto w-auto"
-                                    priority
+                                priority
                                 />
-                                Edit Adhaar
-                            </button>
-                        </div>
-                    </div>
+                                    Upload Aadhar 
+                                </button>
+                                <div className="border border-[#FFCD66] h-[50px] mx-4"></div> {/* Vertical line */}
+                                <button 
+                                    type="button" 
+                                    className="flex items-center justify-center w-[45%] py-2 bg-white border border-[#FFCD66] text-black font-inter  rounded-lg gap-3"
+                                >
+                                    <Image
+                                        src="/assets/images/Edit.png" // Path to your logo image
+                                        alt="Logo"
+                                        width={30}
+                                        height={30}
+                                        className="h-auto w-auto" // Ensures responsive sizing
+                                        priority
+                                    />
+                                    Edit Aadhar 
+                                </button>
+                            </div>              
+                   </div> 
 
                     <div className="mb-6">
                         <label htmlFor="Name" className="font-inter">
@@ -317,16 +295,14 @@ const KYCRegisterForm=  () => {
                                 id="Name"
                                 name="name"
                                 type="text"
-                                placeholder="Enter Name"
+                                placeholder="Adhaar Number"
                                 className={`form-input placeholder:text-white-dark ${errors.name ? 'border-red-500' : 'border-[#FFCD66]'}`}
                                 value={formData.name}
                                 onChange={handleChange}
                             />
                         </div>
-                        {errors.name && <p className="text-red-500 text-sm">Name is required</p>}
-                        <p className="text-[#9C9AA5] font-inter text-sm">
-                            Note : Enter your name as per your Government Records {formData.phone}
-                        </p>
+                        {errors.name && <p className="text-red-500 text-sm">Adhaar Number is required</p>}
+                        
                     </div>
 
                     <button type="button" className="btn mx-auto w-[60%] text-white font-inter bg-[#FFCD66] my-10" value={2} onClick={handleNext}>
@@ -363,7 +339,7 @@ const KYCRegisterForm=  () => {
                                     className="h-auto w-auto"
                                 priority
                                 />
-                                    Upload Pan Card 
+                                    Upload Pan 
                                 </button>
                                 <div className="border border-[#FFCD66] h-[50px] mx-4"></div> {/* Vertical line */}
                                 <button 
@@ -389,14 +365,14 @@ const KYCRegisterForm=  () => {
                                     id="Name"
                                     name="name"
                                     type="text"
-                                    placeholder="Enter Name"
+                                    placeholder="PAN NUMBER"
                                     className={`form-input placeholder:text-white-dark ${errors.name ? 'border-red-500' : 'border-[#FFCD66]'}`}
                                     value={formData.name}
                                     onChange={handleChange}
                                 />
                             </div>
-                            {errors.name && <p className="text-red-500 text-sm">Name is required</p>}
-                            <p className='text-[#9C9AA5] font-inter text-sm'> Note : Enter you name as per your Government Records { formData.phone}</p>
+                            {errors.name && <p className="text-red-500 text-sm">PAN Number is required</p>}
+                            {/* <p className='text-[#9C9AA5] font-inter text-sm'> Note : Enter you name as per your Government Records { formData.phone}</p> */}
                         </div>
                      <button
                        type="button"
@@ -426,7 +402,7 @@ const KYCRegisterForm=  () => {
                       <div className="flex justify-center items-center my-[5%] gap-4 mt-6"> {/* Flex container for buttons */}
                                 <button 
                                     type="button" 
-                                    className="flex items-center justify-center w-[45%] py-2 bg-white border border-[#FFCD66] text-black font-inter  rounded-lg gap-3"
+                                    className="flex items-center justify-center w-[45%] py-2 px-2 bg-white border border-[#FFCD66] text-black font-inter  rounded-lg gap-3"
                                 ><Image
                                     src="/assets/images/Upload.png" // Path to your logo image
                                     alt="Logo"
@@ -483,10 +459,10 @@ const KYCRegisterForm=  () => {
                 {step === 4 && (
                    <>
                    {/* Step 1: Basics */}
-                   <div className=" justify-center items-center">
-                       <h1 className='text-3xl text-black  font-inter text-center'>Enter Your Bank Details</h1>
+                   <div className="flex justify-center items-center">
+                       <h1 className='text-2xl text-black  font-inter text-center'>Enter Your Bank Details</h1>
                    </div>
-                   <div className="mb-6">
+                   <div className="mb-6 mt-2">
                        <label htmlFor="Name" className='font-inter '>Bank Account Number <span  className='text-red-500'>*</span></label>
                        <div className="relative text-white-dark">
                            <input

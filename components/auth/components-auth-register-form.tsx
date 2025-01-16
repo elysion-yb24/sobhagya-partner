@@ -255,10 +255,10 @@ const ComponentsAuthRegisterForm=  () => {
                     <>
                         {/* Step 1: Basics */}
                         <div className=" justify-center items-center">
-                            <h1 className='text-3xl text-black  font-inter text-center'>We are Happy to Onboard You</h1>
+                            <div className='text-xl font-medium text-black  font-inter text-center'>We are Happy to Onboard You</div>
                             <p className='text-[#9C9AA5] text-center text-sm mx-auto'>This is just the beginning of a remarkable journey—your first step to joining us as an esteemed astrologer!</p>
                             <Image
-                                className="mx-auto" 
+                                className="mx-auto -mt-5" 
                                 src="/assets/images/monk-logo.png" // Path to your logo image
                                 alt="Logo"
                                 width={250}
@@ -266,7 +266,7 @@ const ComponentsAuthRegisterForm=  () => {
                                 priority
                             />
                         </div>
-                        <div className="mb-6">
+                        <div className="mb-4">
                             <label htmlFor="Name" className='font-inter '>Your Name <span  className='text-red-500'>*</span></label>
                             <div className="relative text-white-dark">
                                 <input
@@ -394,7 +394,9 @@ const ComponentsAuthRegisterForm=  () => {
                         </button>
                     </>
                 )}
-
+{/* <div className=" justify-center items-center">
+                            <h1 className='text-3xl text-black  font-inter text-center'>We are Happy to Onboard You</h1>
+                            <p className='text-[#9C9AA5] text-center text-sm mx-auto'>This is just the beginning of a remarkable journey—your first step to joining us as an esteemed astrologer!</p> */}
                 {step === 2 && (
                    <>
                    {/* Step 2: Details */}
