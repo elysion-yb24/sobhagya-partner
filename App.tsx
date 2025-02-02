@@ -37,6 +37,7 @@ function App({ children }: PropsWithChildren) {
         dispatch(toggleSemidark(localStorage.getItem('semidark') || themeConfig.semidark));
         // locale
         initLocale(themeConfig.locale);
+        
     }, [dispatch, initLocale, themeConfig]);
 
     async function checkAuthentication() {
@@ -92,7 +93,7 @@ function App({ children }: PropsWithChildren) {
 
     return (
         <div
-            className={`w-screen h-screen flex flex-col overflow-hidden ${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass} main-section relative font-nunito text-sm font-normal antialiased`}
+            className={`w-screen h-screen flex flex-col overflow-auto ${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass} main-section relative font-nunito text-sm font-normal antialiased`}
         >
             {isLoading ? <Loading /> : children}
             <AppProgressBar
@@ -101,6 +102,7 @@ function App({ children }: PropsWithChildren) {
                 options={{ showSpinner: false }}
                 shallowRouting={false}
             />
+            
         </div>
     );
 }

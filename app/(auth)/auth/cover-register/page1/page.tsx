@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import Image from "next/image";
+import Step1Form from '@/components/auth/cover-register/components-auth-register-page1';
 
 export const metadata: Metadata = {
     title: 'Register Cover',
@@ -25,9 +26,9 @@ const CoverRegister = () => {
                 <div className="mb-4 text-center"> 
                     <h1 className="text-xl font-extrabold font-inter mt-10 md:mt-0">Sobhagya Registration</h1>
                 </div>
-                <ComponentsAuthRegisterForm />
+                <Step1Form />
             </div>
-                {/* <p className="absolute bottom-20 w-full text-center dark:text-white">
+                {/* <p className="absolute bottom-0 w-full text-center md:bottom-25 dark:text-white">
                     © {new Date().getFullYear()}. Elysion Softwares All Rights Reserved.
                 </p> */}
             </div>

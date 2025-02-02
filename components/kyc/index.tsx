@@ -301,7 +301,7 @@ const KYCRegisterForm=  () => {
                                 onChange={handleChange}
                             />
                         </div>
-                        {errors.name && <p className="text-red-500 text-sm">Adhaar Number is required</p>}
+                        {errors.name && <p className="text-red-500 text-sm">Adhaar is required</p>}
                         
                     </div>
 

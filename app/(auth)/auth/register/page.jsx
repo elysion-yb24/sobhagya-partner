@@ -1,9 +1,9 @@
-import RegisterComponent from '@/components/register/index';
+import RegisterComponent1 from '@/components/register/register1';
 import React from 'react';
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation';
 
 const Register=()=>{
-    return <RegisterComponent/>
+    return <RegisterComponent1/>
 }
-export default Register; 
+export default Register;

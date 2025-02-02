@@ -522,36 +522,7 @@ const ComponentsAuthRegisterForm=  () => {
                        />
                        {errors.yoe && <p className="text-red-500 text-sm">Years of Experience is required</p>}
                    </div>
-                   {/*
-                   <div>
-                       <label htmlFor="Gender">Gender</label>
-                       <select
-                           id="Gender"
-                           name="gender"
-                           className={`form-input placeholder:text-white-dark ${errors.astrologerType ? 'border-red-500' : ''}`}
-                           value={formData.gender}
-                           onChange={handleChange}
-                       >
-                           <option value="">Select Gender</option>
-                           <option value="male">Male</option>
-                           <option value="female">Female</option>
-                           <option value="notToSay">Prefer not to say</option>
-
-                       </select>
-                       {errors.astrologerType && <p className="text-red-500 text-sm">Astrologer Type is required</p>}
-                   </div> */}
-                   {/* <div>
-                       <label htmlFor="Image">Profile Image</label>
-                       <input
-                           id="Image"
-                           name="image"
-                           type="file"
-                           accept="image/*"
-                           className={`form-input placeholder:text-white-dark ${errors.image ? 'border-red-500' : ''}`}
-                           onChange={handleChange}
-                       />
-                       {errors.image && <p className="text-red-500 text-sm">Profile Image is required</p>}
-                   </div> */}
+                   
                    
                    <div className="mt-6">
                        <label htmlFor="Language" className="font-inter">Language <span className="text-red-500">*</span></label>
@@ -589,16 +560,7 @@ const ComponentsAuthRegisterForm=  () => {
                        </select>
                        {errors.astrologerType && <p className="text-red-500 text-sm">Astrologer Type is required</p>}
                    </div>
-                   {/* 
-                   <div>
-                       <label htmlFor="Image">Profile Image</label>
-                       {/* <ComponentsFormsFileUploadSingle
-                           title="Upload Profile Image"
-                           onChange={(imageList: any) => {
-                               const image = imageList.length > 0 ? imageList[0].file : null;
-                               handleFileChange('image', image);
-                           }}
-                       /> */}
+                   
                        {errors.image && <p className="text-red-500 text-sm">Profile Image is required</p>}
                    {/* </div> */} 
                    <Link href="/auth/register"> {/* Replace with the target route */}

@@ -13,6 +13,8 @@ export const metadata: Metadata = {
 };
 
 const CoverLogin = () => {
+
+
     return (
         <div>
             <div className="absolute inset-0">
