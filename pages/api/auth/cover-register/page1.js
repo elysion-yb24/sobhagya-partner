@@ -1,6 +1,11 @@
+// pages/api/astrologer/register.js (for example)
+
 import dbConnect from "@/config/db";
 import Astrologer from '@/models/astrologer';
 import OTP from "@/models/otp";
+
+// Because Next.js supports ES modules, we can import sendOtp like this:
+import sendOtp from "@/utils/sendOtp";
 
 export default async function handler(req, res) {
   await dbConnect();
@@ -40,11 +45,13 @@ export default async function handler(req, res) {
         otp,
         expiresAt,
       });
-
       console.log("OTP stored successfully.");
 
-      // Send OTP via your preferred SMS service here (pseudo-code)
-      // await sendSms(phone, `Your OTP is ${otp}`);
+      // Send OTP via Fast2SMS
+      const sendSuccess = await sendOtp(phone, otp);
+      if (!sendSuccess) {
+        return res.status(500).json({ success: false, message: 'Failed to send OTP.' });
+      }
 
       return res.status(200).json({ success: true, message: 'OTP sent successfully.' });
     } catch (error) {

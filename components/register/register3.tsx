@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 function RegisterComponent3() {
   const [userData, setUserData] = useState({
     name: "",
-    status: "Pending",
+    status: "Rejected",
     vcp: "Not Decided",
     acp: "Not Decided",
   });

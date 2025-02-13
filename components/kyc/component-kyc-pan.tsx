@@ -1,14 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
 const Step2 = () => {
   const router = useRouter();
+  const fileInputRef = useRef(null);
+
   const [panNumber, setPanNumber] = useState("");
   const [panFile, setPanFile] = useState(null);
-  const [panPreview, setPanPreview] = useState(null); // PAN preview state
+  const [panPreview, setPanPreview] = useState(null);
   const [error, setError] = useState({ pan: false, file: false });
   const [fileUploaded, setFileUploaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,8 +23,44 @@ const Step2 = () => {
     timerProgressBar: true,
   });
 
-  const validatePan = (panNumber) => {
-    return /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber);
+  const validatePan = (panNumber) => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError((prev) => ({ ...prev, file: true }));
+      Toast.fire({
+        icon: "error",
+        title: "Only image files are allowed for PAN upload.",
+      });
+      return;
+    }
+
+    setPanFile(file);
+    setPanPreview(URL.createObjectURL(file));
+    setError((prev) => ({ ...prev, file: false }));
+    setFileUploaded(true);
+    Toast.fire({
+      icon: "success",
+      title: "PAN file uploaded successfully.",
+    });
+  };
+
+  const handleEdit = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setPanFile(null);
+    setPanPreview(null);
+    setFileUploaded(false);
+    setError((prev) => ({ ...prev, file: false }));
+
+    Toast.fire({
+      icon: "info",
+      title: "You can upload a new PAN file.",
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -62,13 +100,10 @@ const Step2 = () => {
       if (response.ok) {
         setPanNumber("");
         setPanFile(null);
-        setPanPreview(null); // Reset preview
+        setPanPreview(null);
         setFileUploaded(false);
-
-        // Reset file input explicitly
-        const fileInput = document.getElementById("pan-upload");
-        if (fileInput) {
-          fileInput.value = "";
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
         }
 
         Toast.fire({
@@ -93,53 +128,11 @@ const Step2 = () => {
     }
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError((prev) => ({ ...prev, file: true }));
-      Toast.fire({
-        icon: "error",
-        title: "Only image files are allowed for PAN upload.",
-      });
-      return;
-    }
-
-    setPanFile(file);
-    setPanPreview(URL.createObjectURL(file)); // Set preview URL
-    setError((prev) => ({ ...prev, file: false }));
-    setFileUploaded(true);
-    Toast.fire({
-      icon: "success",
-      title: "PAN file uploaded successfully.",
-    });
-
-    console.log("File Uploaded:", file.name);
-  };
-
-  const handleEdit = () => {
-    setPanFile(null);
-    setPanPreview(null); // Clear preview
-    setFileUploaded(false);
-    setError((prev) => ({ ...prev, file: false }));
-
-    // Reset file input explicitly
-    const fileInput = document.getElementById("pan-upload");
-    if (fileInput) {
-      fileInput.value = "";
-    }
-
-    Toast.fire({
-      icon: "info",
-      title: "You can upload a new PAN file.",
-    });
-    console.log("Edit PAN clicked. File cleared.");
-  };
-
   return (
     <div className="flex flex-col items-center">
-      <p className="text-center text-[#9C9AA5] text-sm font-inter -mt-2 mb-2">2 / 4</p>
+      <p className="text-center text-[#9C9AA5] text-sm font-inter -mt-2 mb-2">
+        2 / 4
+      </p>
       <h1 className="text-xl text-black font-bold font-inter text-center">
         Upload Your PAN Card
       </h1>
@@ -167,48 +160,49 @@ const Step2 = () => {
         />
       )}
 
-<div className="flex justify-center items-center w-full max-w-[600px] gap-3 mt-6 mb-4">
-  {/* Upload PAN Card Button */}
-  <button
-    type="button"
-    onClick={() => document.getElementById("pan-upload").click()}
-    className="flex items-center justify-center w-1/2 py-2 px-4 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap "
-  >
-    <Image
-      src="/assets/images/Upload.png"
-      alt="Upload PAN Card"
-      width={20}
-      height={20}
-      className="h-auto w-auto"
-      priority
-    />
-    Upload PAN
-  </button>
-  <input
-    id="pan-upload"
-    type="file"
-    className="hidden"
-    accept="image/*"
-    onChange={handleFileUpload}
-  />
+      <div className="flex justify-center items-center w-full max-w-[600px] gap-3 mt-6 mb-4">
+        {/* Upload PAN Card Button */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center justify-center w-1/2 py-2 px-4 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
+        >
+          <Image
+            src="/assets/images/Upload.png"
+            alt="Upload PAN Card"
+            width={20}
+            height={20}
+            className="h-auto w-auto"
+            priority
+          />
+          Upload PAN
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept="image/*"
+          onChange={handleFileUpload}
+        />
 
-  {/* Edit PAN Card Button */}
-  <button
-    type="button"
-    onClick={handleEdit}
-    className="flex items-center justify-center w-1/2 py-2 px-4 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
-  >
-    <Image
-      src="/assets/images/Edit.png"
-      alt="Edit PAN Card"
-      width={20}
-      height={20}
-      className="h-auto w-auto"
-      priority
-    />
-    Edit PAN
-  </button>
-</div>
+        {/* Edit PAN Card Button */}
+        <button
+          type="button"
+          onClick={handleEdit}
+          className="flex items-center justify-center w-1/2 py-2 px-4 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
+        >
+          <Image
+            src="/assets/images/Edit.png"
+            alt="Edit PAN Card"
+            width={20}
+            height={20}
+            className="h-auto w-auto"
+            priority
+          />
+          Edit PAN
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <label htmlFor="pan" className="font-inter">
           Enter PAN Number <span className="text-red-500">*</span>
@@ -228,7 +222,9 @@ const Step2 = () => {
           }}
         />
         {error.pan && (
-          <p className="text-red-500 text-sm">PAN must follow the format (ABCDE1234F).</p>
+          <p className="text-red-500 text-sm">
+            PAN must follow the format (ABCDE1234F).
+          </p>
         )}
 
         <button

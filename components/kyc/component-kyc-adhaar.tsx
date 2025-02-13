@@ -1,14 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
 const Step1 = () => {
   const router = useRouter();
+  const fileInputRef = useRef(null);
+
   const [aadhaar, setAadhaar] = useState("");
   const [aadhaarFile, setAadhaarFile] = useState(null);
-  const [aadhaarPreview, setAadhaarPreview] = useState(null); // Aadhaar preview state
+  const [aadhaarPreview, setAadhaarPreview] = useState(null);
   const [error, setError] = useState({ aadhaar: false, file: false });
   const [fileUploaded, setFileUploaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,8 +23,53 @@ const Step1 = () => {
     timerProgressBar: true,
   });
 
-  const validateAadhaar = (aadhaar) => {
-    return /^\d{12}$/.test(aadhaar);
+  const validateAadhaar = (num) => /^\d{12}$/.test(num);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file type (JPG, JPEG, optional PDF)
+    const allowedTypes = ["image/jpeg", "image/jpg", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) {
+      setError((prev) => ({ ...prev, file: true }));
+      Toast.fire({
+        icon: "error",
+        title: "Invalid file type. Please upload JPG, JPEG, or PDF only.",
+      });
+      return;
+    }
+
+    setAadhaarFile(file);
+    setError((prev) => ({ ...prev, file: false }));
+    setFileUploaded(true);
+
+    // Preview only if it's an image
+    if (file.type.startsWith("image/")) {
+      setAadhaarPreview(URL.createObjectURL(file));
+    } else {
+      setAadhaarPreview(null); // No preview for PDFs
+    }
+
+    Toast.fire({
+      icon: "success",
+      title: "Aadhaar file uploaded successfully.",
+    });
+  };
+
+  const handleEdit = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setAadhaarFile(null);
+    setAadhaarPreview(null);
+    setFileUploaded(false);
+    setError((prev) => ({ ...prev, file: false }));
+
+    Toast.fire({
+      icon: "info",
+      title: "You can upload a new Aadhaar file.",
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -60,11 +107,14 @@ const Step1 = () => {
       const result = await response.json();
 
       if (response.ok) {
+        // Reset fields
         setAadhaar("");
         setAadhaarFile(null);
-        setAadhaarPreview(null); // Reset preview
+        setAadhaarPreview(null);
         setFileUploaded(false);
-        document.getElementById("aadhaar-upload").value = "";
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
 
         Toast.fire({
           icon: "success",
@@ -77,8 +127,8 @@ const Step1 = () => {
           title: result.message || "Failed to submit Aadhaar details.",
         });
       }
-    } catch (error) {
-      console.error("Error submitting KYC Step 1:", error);
+    } catch (err) {
+      console.error("Error submitting KYC Step 1:", err);
       Toast.fire({
         icon: "error",
         title: "An error occurred while submitting Aadhaar details.",
@@ -88,58 +138,16 @@ const Step1 = () => {
     }
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError((prev) => ({ ...prev, file: true }));
-      Toast.fire({
-        icon: "error",
-        title: "Only image files are allowed for Aadhaar upload.",
-      });
-      return;
-    }
-
-    setAadhaarFile(file);
-    setAadhaarPreview(URL.createObjectURL(file)); // Set preview URL
-    setError((prev) => ({ ...prev, file: false }));
-    setFileUploaded(true);
-    Toast.fire({
-      icon: "success",
-      title: "Aadhaar file uploaded successfully.",
-    });
-
-    console.log("File Uploaded:", file.name);
-  };
-
-  const handleEdit = () => {
-    setAadhaarFile(null);
-    setAadhaarPreview(null); // Clear preview
-    setFileUploaded(false);
-    setError((prev) => ({ ...prev, file: false }));
-
-    // Reset file input explicitly
-    const fileInput = document.getElementById("aadhaar-upload");
-    if (fileInput) {
-      fileInput.value = "";
-    }
-
-    Toast.fire({
-      icon: "info",
-      title: "You can upload a new Aadhaar file.",
-    });
-    console.log("Edit Aadhaar clicked. File cleared.");
-  };
-
   return (
     <div className="flex flex-col items-center">
-      <p className="text-center text-[#9C9AA5] text-sm font-inter -mt-2 mb-2">1 / 4</p>
+      <p className="text-center text-[#9C9AA5] text-sm font-inter -mt-2 mb-2">
+        1 / 4
+      </p>
       <h1 className="text-xl text-black font-bold font-inter text-center">
         Upload Your Aadhaar Card
       </h1>
-      
-      {/* Aadhaar Preview */}
+
+      {/* Preview */}
       {aadhaarPreview ? (
         <div className="w-[150px] h-[150px] rounded-full border-4 border-[#FFCD66] overflow-hidden my-4">
           <Image
@@ -162,54 +170,50 @@ const Step1 = () => {
         />
       )}
 
-<div className="flex justify-center items-center w-full max-w-[500px] gap-2 mt-6 mb-4">
-  {/* Upload Aadhaar Button */}
-  <button
-    type="button"
-    onClick={() => document.getElementById("aadhaar-upload").click()}
-    className="flex items-center justify-center flex-1 py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
-  >
-    <Image
-      src="/assets/images/Upload.png"
-      alt="Upload Aadhaar"
-      width={20}
-      height={20}
-      className="h-auto w-auto"
-      priority
-    />
-    Upload Aadhaar
-  </button>
-  <input
-    id="aadhaar-upload"
-    type="file"
-    className="hidden"
-    accept="image/*"
-    onChange={handleFileUpload}
-  />
+      <div className="flex justify-center items-center w-full max-w-[500px] gap-2 mt-6 mb-4">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center justify-center flex-1 py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
+        >
+          <Image
+            src="/assets/images/Upload.png"
+            alt="Upload Aadhaar"
+            width={20}
+            height={20}
+            className="h-auto w-auto"
+            priority
+          />
+          Upload Aadhaar
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept="image/jpeg,image/jpg,application/pdf" // updated
+          onChange={handleFileUpload}
+        />
 
-  {/* Edit Aadhaar Button */}
-  <button
-    type="button"
-    onClick={handleEdit}
-    className="flex items-center justify-center flex-1 py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
-  >
-    <Image
-      src="/assets/images/Edit.png"
-      alt="Edit Aadhaar"
-      width={20}
-      height={20}
-      className="h-auto w-auto"
-      priority
-    />
-    Edit Aadhaar
-  </button>
-</div>
-
-
+        <button
+          type="button"
+          onClick={handleEdit}
+          className="flex items-center justify-center flex-1 py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
+        >
+          <Image
+            src="/assets/images/Edit.png"
+            alt="Edit Aadhaar"
+            width={20}
+            height={20}
+            className="h-auto w-auto"
+            priority
+          />
+          Edit Aadhaar
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <label htmlFor="aadhaar" className="font-inter">
-          Enter Aadhar Number <span className="text-red-500">*</span>
+          Enter Aadhaar Number <span className="text-red-500">*</span>
         </label>
         <input
           id="aadhaar"

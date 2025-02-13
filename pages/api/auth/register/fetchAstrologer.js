@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     await new Promise((resolve, reject) => validateJWT(req, res, (err) => (err ? reject(err) : resolve())));
 
     // Fetch astrologer details using astrologerId
-    const astrologer = await Astrologer.findById(req.astrologerId).select("name videoPrice audioPrice");
+    const astrologer = await Astrologer.findById(req.astrologerId).select("name interviewStatus videoPrice audioPrice");
 
     if (!astrologer) {
       return res.status(404).json({

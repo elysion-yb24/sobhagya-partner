@@ -13,9 +13,11 @@ async function handler(req, res) {
   }
 
   try {
+    
     // Retrieve the user's KYC record using the astrologerId from the JWT
     const kycRecord = await Kyc.findOne({ astrologerId: req.astrologerId });
-
+    
+     console.log("Checking KYC for astrologerId:", kycRecord);
     // Determine which page to go to next
     let nextRoute = "/auth/kyc/page1"; // Default if none of the pages are filled
     if (kycRecord) {

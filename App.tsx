@@ -11,6 +11,7 @@ import { getProfile, getUserProfile } from './utils';
 import { useRouter } from 'next/navigation';
 import { AppProgressBar } from 'next-nprogress-bar';
 import Swal from 'sweetalert2';
+import "./global.css"
 
 function App({ children }: PropsWithChildren) {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
@@ -93,7 +94,7 @@ function App({ children }: PropsWithChildren) {
 
     return (
         <div
-            className={`w-screen h-screen flex flex-col overflow-auto ${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass} main-section relative font-nunito text-sm font-normal antialiased`}
+            className={` w-screen h-screen flex flex-col overflow-hidden ${(themeConfig.sidebar && 'toggle-sidebar') || ''} ${themeConfig.menu} ${themeConfig.layout} ${themeConfig.rtlClass} main-section relative font-nunito text-sm font-normal antialiased`}
         >
             {isLoading ? <Loading /> : children}
             <AppProgressBar
