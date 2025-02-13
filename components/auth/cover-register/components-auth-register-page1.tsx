@@ -24,11 +24,12 @@ const Step1Form = () => {
     timerProgressBar: true,
   });
 
+  // ✅ Corrected Type for `handleChange`
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: false });
-};
+  };
 
   const validateForm = () => {
     const newErrors = {
@@ -53,6 +54,7 @@ const Step1Form = () => {
     return !newErrors.name && !newErrors.phone;
   };
 
+  // ✅ Fix Type Error in handleSubmit
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {

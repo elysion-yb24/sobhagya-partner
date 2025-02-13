@@ -44,7 +44,7 @@
         "formik": "^2.2.9",
         "fs-extra": "^11.3.0",
         "highlight.js": "^11.7.0",
-        "hls.js": "^1.5.20",
+        "hls.js": "^1.4.12",
         "html2pdf.js": "^0.10.2",
         "i18next": "^22.4.10",
         "jsonwebtoken": "^9.0.2",
