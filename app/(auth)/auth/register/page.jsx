@@ -59,6 +59,7 @@ const Register = () => {
 
   if (interviewStatus === "Pending") {
     return <RegisterComponent1 />;
+    
   } else if (interviewStatus === "Interviewed") {
     return <RegisterComponent2 />;
   } else if (interviewStatus === "Rejected") {
