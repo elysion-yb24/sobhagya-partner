@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react';
-import Hls from 'hls.js';
+import { Hls } from "hls.js";
+
 
 const VideoPlayer = ({videoUrl}) => {
   const videoRef = useRef(null);

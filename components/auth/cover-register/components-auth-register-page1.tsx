@@ -24,11 +24,11 @@ const Step1Form = () => {
     timerProgressBar: true,
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: false });
-  };
+};
 
   const validateForm = () => {
     const newErrors = {
