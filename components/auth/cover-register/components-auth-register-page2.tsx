@@ -111,7 +111,7 @@ const Step2Form = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const otpCode = otp.join("");
     if (otpCode.length === 4) {
