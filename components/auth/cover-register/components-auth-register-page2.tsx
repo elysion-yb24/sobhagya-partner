@@ -1,22 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useTimer } from "react-timer-hook";
 import Swal from "sweetalert2";
 
-const Step2Form = () => {
+const Step2Form: React.FC = () => {
   const router = useRouter();
-  const [otp, setOtp] = useState(["", "", "", ""]);
-  const [loading, setLoading] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [resending, setResending] = useState<boolean>(false);
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
 
-  // References for each input
-  const inputRefs = useRef([]);
+  // References for each input field
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Initialize timer for Resend OTP
+  // Timer for Resend OTP
   const time = new Date();
   time.setSeconds(time.getSeconds() + 30);
   const { seconds, isRunning, restart } = useTimer({
@@ -25,31 +25,37 @@ const Step2Form = () => {
   });
 
   useEffect(() => {
-    // Fetch phone number from localStorage
-    const userDetails = JSON.parse(localStorage.getItem("userDetails") || "{}");
-    if (userDetails?.phone) {
-      setPhoneNumber(userDetails.phone);
-    } else {
-      console.warn("⚠️ Phone number not found in localStorage");
-      router.push("/auth/login/send-otp"); // Redirect if phone is missing
+    // ✅ Fetch phone number from localStorage safely
+    try {
+      const userDetails = JSON.parse(localStorage.getItem("userDetails") || "{}");
+      if (userDetails?.phone) {
+        setPhoneNumber(userDetails.phone);
+      } else {
+        console.warn("⚠️ Phone number not found in localStorage");
+        router.push("/auth/login/send-otp"); // Redirect if phone is missing
+      }
+    } catch (error) {
+      console.error("❌ Error fetching phone number:", error);
+      router.push("/auth/login/send-otp");
     }
   }, [router]);
 
-  const handleChange = (index, value) => {
+  // ✅ Handle OTP Input Change
+  const handleChange = (index: number, value: string) => {
     const updatedOtp = [...otp];
-    updatedOtp[index] = value.slice(0, 1); // Ensure only one digit
+    updatedOtp[index] = value.slice(0, 1); // Only one digit per input
     setOtp(updatedOtp);
 
     // Auto-focus to the next input field
     if (value && index < inputRefs.current.length - 1) {
-      inputRefs.current[index + 1].focus();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyDown = (index, event) => {
+  // ✅ Handle Backspace Navigation
+  const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Backspace" && otp[index] === "" && index > 0) {
-      // Move to the previous input field on backspace
-      inputRefs.current[index - 1].focus();
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -63,7 +69,7 @@ const Step2Form = () => {
 
   // ✅ Resend OTP Functionality
   const handleResendOTP = async () => {
-    if (resending) return; // Prevent multiple requests
+    if (resending) return;
 
     if (!phoneNumber) {
       Toast.fire({
@@ -111,6 +117,7 @@ const Step2Form = () => {
     }
   };
 
+  // ✅ Handle OTP Verification
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const otpCode = otp.join("");
@@ -159,7 +166,7 @@ const Step2Form = () => {
         <p className="text-center text-[#9C9AA5] text-xs font-inter -mt-2 mb-1">
           2 / 3
         </p>
-        <h1 className="text-l md:text-xl text-black font-bold font-inter text-center">
+        <h1 className="text-lg md:text-xl text-black font-bold font-inter text-center">
           Secure Your Account <br />
           Verify Your Phone Number!
         </h1>
@@ -175,18 +182,17 @@ const Step2Form = () => {
           OTP Verification
         </h1>
 
-        {/* Phone Verification Text */}
         <p className="text-center text-black text-sm font-semibold">
           We will send you a one-time password on this{" "}
-          <span className=" text-black font-bold">Mobile Number</span>
+          <span className="text-black font-bold">Mobile Number</span>
         </p>
 
-        {/* Display Phone Number */}
         <p className="text-center text-black font-bold text-medium mt-1 mb-1">
           {phoneNumber ? `+91 - ${phoneNumber}` : "+91 - XXXXX XXXXX"}
         </p>
       </div>
 
+      {/* OTP Input Fields */}
       <div className="flex justify-center gap-4 my-5">
         {[...Array(4)].map((_, index) => (
           <input
@@ -207,25 +213,13 @@ const Step2Form = () => {
         {isRunning ? (
           <p className="text-black">Resend OTP in {seconds}s</p>
         ) : (
-          <div>
-            <p className="text-black inline-block mr-2">Did not get OTP?</p>
-            <button
-              type="button"
-              className="text-[#E9890A] cursor-pointer"
-              onClick={handleResendOTP}
-              disabled={resending}
-            >
-              {resending ? "Resending..." : "Send OTP"}
-            </button>
-          </div>
+          <button type="button" className="text-[#E9890A] cursor-pointer" onClick={handleResendOTP}>
+            {resending ? "Resending..." : "Send OTP"}
+          </button>
         )}
       </div>
 
-      <button
-        type="submit"
-        className="btn mx-auto w-[60%] text-white font-inter bg-[#FFCD66] my-5"
-        disabled={loading}
-      >
+      <button type="submit" className="btn mx-auto w-[60%] text-white font-inter bg-[#FFCD66] my-5" disabled={loading}>
         {loading ? "Verifying..." : "Continue"}
       </button>
     </form>
