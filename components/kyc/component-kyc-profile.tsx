@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Webcam from "react-webcam";
 
-const ProfileUpload = () => {
+const ProfileUpload: React.FC = () => {
   const router = useRouter();
-  const [displayName, setDisplayName] = useState("");
-  const [displayPic, setDisplayPic] = useState(null);
-  const [displayPreview, setDisplayPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [uploadButtonText, setUploadButtonText] = useState("Upload Photo");
-  const webcamRef = useRef(null);
+  const webcamRef = useRef<Webcam | null>(null);
+
+  const [displayName, setDisplayName] = useState<string>("");
+  const [displayPic, setDisplayPic] = useState<File | null>(null);
+  const [displayPreview, setDisplayPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [cameraActive, setCameraActive] = useState<boolean>(false);
+  const [uploadButtonText, setUploadButtonText] = useState<string>("Upload Photo");
 
   const Toast = Swal.mixin({
     toast: true,
@@ -36,6 +37,8 @@ const ProfileUpload = () => {
     if (!webcamRef.current) return;
 
     const imageSrc = webcamRef.current.getScreenshot();
+    if (!imageSrc) return;
+
     setDisplayPreview(imageSrc);
 
     // ✅ Convert Base64 to Blob and store as File
@@ -50,6 +53,13 @@ const ProfileUpload = () => {
         Toast.fire({
           icon: "success",
           title: "Photo captured successfully.",
+        });
+      })
+      .catch((error) => {
+        console.error("Error capturing photo:", error);
+        Toast.fire({
+          icon: "error",
+          title: "Failed to capture photo.",
         });
       });
   };
@@ -66,7 +76,7 @@ const ProfileUpload = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!displayName.trim()) {
@@ -87,7 +97,7 @@ const ProfileUpload = () => {
 
     const formData = new FormData();
     formData.append("displayName", displayName.trim());
-    formData.append("displayPic", displayPic); // ✅ Now sending a valid File
+    formData.append("displayPic", displayPic);
 
     setLoading(true);
     try {

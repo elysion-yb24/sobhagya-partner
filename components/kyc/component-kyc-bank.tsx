@@ -3,15 +3,17 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-const Step4 = () => {
+const Step4: React.FC = () => {
   const router = useRouter();
-  const [accountNumber, setAccountNumber] = useState("");
-  const [accountHolderName, setAccountHolderName] = useState("");
-  const [ifscCode, setIfscCode] = useState("");
-  const [branchName, setBranchName] = useState("");
-  const [upiId, setUpiId] = useState("");
-  const [cancelledCheque, setCancelledCheque] = useState(null);
-  const [error, setError] = useState({
+  const [accountNumber, setAccountNumber] = useState<string>("");
+  const [accountHolderName, setAccountHolderName] = useState<string>("");
+  const [ifscCode, setIfscCode] = useState<string>("");
+  const [branchName, setBranchName] = useState<string>("");
+  const [upiId, setUpiId] = useState<string>("");
+  const [cancelledCheque, setCancelledCheque] = useState<File | null>(null);
+  const [fileUploaded, setFileUploaded] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Record<string, boolean>>({
     accountNumber: false,
     accountHolderName: false,
     ifscCode: false,
@@ -19,8 +21,6 @@ const Step4 = () => {
     upiId: false,
     cheque: false,
   });
-  const [loading, setLoading] = useState(false);
-  const [fileUploaded, setFileUploaded] = useState(false);
 
   // Toast configuration
   const Toast = Swal.mixin({
@@ -31,37 +31,38 @@ const Step4 = () => {
     timerProgressBar: true,
   });
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (!file.type.startsWith("image/") && !file.type.endsWith("pdf")) {
-        setError((prev) => ({ ...prev, cheque: true }));
-        Toast.fire({
-          icon: "error",
-          title: "Please upload a valid image or PDF file.",
-        });
-        return;
-      }
-      setCancelledCheque(file);
-      setError((prev) => ({ ...prev, cheque: false }));
-      setFileUploaded(true);
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/") && !file.type.endsWith("pdf")) {
+      setError((prev) => ({ ...prev, cheque: true }));
       Toast.fire({
-        icon: "success",
-        title: "Cancelled cheque uploaded successfully!",
+        icon: "error",
+        title: "Please upload a valid image or PDF file.",
       });
+      return;
     }
+
+    setCancelledCheque(file);
+    setError((prev) => ({ ...prev, cheque: false }));
+    setFileUploaded(true);
+    Toast.fire({
+      icon: "success",
+      title: "Cancelled cheque uploaded successfully!",
+    });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate inputs
-    const newErrors = {};
-    if (!accountNumber) newErrors.accountNumber = true;
-    if (!accountHolderName) newErrors.accountHolderName = true;
-    if (!ifscCode) newErrors.ifscCode = true;
-    if (!branchName) newErrors.branchName = true;
-    if (!upiId) newErrors.upiId = true;
+    const newErrors: Record<string, boolean> = {};
+    if (!accountNumber.trim()) newErrors.accountNumber = true;
+    if (!accountHolderName.trim()) newErrors.accountHolderName = true;
+    if (!ifscCode.trim()) newErrors.ifscCode = true;
+    if (!branchName.trim()) newErrors.branchName = true;
+    if (!upiId.trim()) newErrors.upiId = true;
 
     setError(newErrors);
 
@@ -81,23 +82,17 @@ const Step4 = () => {
         icon: "error",
         title: "Please upload a cancelled cheque.",
       });
-      console.error("Cancelled cheque file is missing");
       return;
     }
 
     // Prepare form data
     const formData = new FormData();
-    formData.append("bankAccountNumber", accountNumber);
-    formData.append("accountHolderName", accountHolderName);
-    formData.append("ifscCode", ifscCode);
-    formData.append("branchName", branchName);
-    formData.append("upiId", upiId);
+    formData.append("bankAccountNumber", accountNumber.trim());
+    formData.append("accountHolderName", accountHolderName.trim());
+    formData.append("ifscCode", ifscCode.trim());
+    formData.append("branchName", branchName.trim());
+    formData.append("upiId", upiId.trim());
     formData.append("cancelledCheque", cancelledCheque);
-
-    // Debug formData
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
-    }
 
     setLoading(true);
 
@@ -147,14 +142,9 @@ const Step4 = () => {
           id="accountNumber"
           type="text"
           placeholder="Enter Bank Account Number"
-          className={`form-input placeholder:text-gray-400 border ${
-            error.accountNumber ? "border-red-500" : "border-[#FFCD66]"
-          }`}
+          className={`form-input border ${error.accountNumber ? "border-red-500" : "border-[#FFCD66]"}`}
           value={accountNumber}
-          onChange={(e) => {
-            setError((prev) => ({ ...prev, accountNumber: false }));
-            setAccountNumber(e.target.value);
-          }}
+          onChange={(e) => setAccountNumber(e.target.value)}
         />
 
         {/* Account Holder Name */}
@@ -165,14 +155,9 @@ const Step4 = () => {
           id="accountHolderName"
           type="text"
           placeholder="Enter Account Holder Name"
-          className={`form-input placeholder:text-gray-400 border ${
-            error.accountHolderName ? "border-red-500" : "border-[#FFCD66]"
-          }`}
+          className={`form-input border ${error.accountHolderName ? "border-red-500" : "border-[#FFCD66]"}`}
           value={accountHolderName}
-          onChange={(e) => {
-            setError((prev) => ({ ...prev, accountHolderName: false }));
-            setAccountHolderName(e.target.value);
-          }}
+          onChange={(e) => setAccountHolderName(e.target.value)}
         />
 
         {/* IFSC Code */}
@@ -183,14 +168,9 @@ const Step4 = () => {
           id="ifscCode"
           type="text"
           placeholder="Enter IFSC Code"
-          className={`form-input placeholder:text-gray-400 border ${
-            error.ifscCode ? "border-red-500" : "border-[#FFCD66]"
-          }`}
+          className={`form-input border ${error.ifscCode ? "border-red-500" : "border-[#FFCD66]"}`}
           value={ifscCode}
-          onChange={(e) => {
-            setError((prev) => ({ ...prev, ifscCode: false }));
-            setIfscCode(e.target.value);
-          }}
+          onChange={(e) => setIfscCode(e.target.value)}
         />
 
         {/* Branch Name */}
@@ -201,14 +181,9 @@ const Step4 = () => {
           id="branchName"
           type="text"
           placeholder="Enter Branch Name"
-          className={`form-input placeholder:text-gray-400 border ${
-            error.branchName ? "border-red-500" : "border-[#FFCD66]"
-          }`}
+          className={`form-input border ${error.branchName ? "border-red-500" : "border-[#FFCD66]"}`}
           value={branchName}
-          onChange={(e) => {
-            setError((prev) => ({ ...prev, branchName: false }));
-            setBranchName(e.target.value);
-          }}
+          onChange={(e) => setBranchName(e.target.value)}
         />
 
         {/* UPI ID */}
@@ -219,43 +194,19 @@ const Step4 = () => {
           id="upiId"
           type="text"
           placeholder="Enter UPI ID"
-          className={`form-input placeholder:text-gray-400 border ${
-            error.upiId ? "border-red-500" : "border-[#FFCD66]"
-          }`}
+          className={`form-input border ${error.upiId ? "border-red-500" : "border-[#FFCD66]"}`}
           value={upiId}
-          onChange={(e) => {
-            setError((prev) => ({ ...prev, upiId: false }));
-            setUpiId(e.target.value);
-          }}
+          onChange={(e) => setUpiId(e.target.value)}
         />
 
         {/* Upload Button */}
         <label className="btn w-full text-white font-inter bg-[#FFCD66] my-6 cursor-pointer">
           Upload Cancel Cheque / Passbook Front
-          <input
-            type="file"
-            className="hidden"
-            accept="image/*, application/pdf"
-            onChange={handleFileUpload}
-          />
+          <input type="file" className="hidden" accept="image/*, application/pdf" onChange={handleFileUpload} />
         </label>
-        {fileUploaded && (
-          <p className="text-green-500 text-sm text-center">
-            Cancelled Cheque uploaded successfully!
-          </p>
-        )}
-        {error.cheque && (
-          <p className="text-red-500 text-sm text-center">
-            Please upload a valid cheque image or PDF.
-          </p>
-        )}
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="btn w-full text-white font-inter bg-[#FFCD66]"
-          disabled={loading}
-        >
+        <button type="submit" className="btn w-full text-white font-inter bg-[#FFCD66]" disabled={loading}>
           {loading ? "Submitting..." : "Continue"}
         </button>
       </form>

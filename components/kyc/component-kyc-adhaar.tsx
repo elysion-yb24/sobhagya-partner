@@ -4,16 +4,19 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-const Step1 = () => {
+const Step1: React.FC = () => {
   const router = useRouter();
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [aadhaar, setAadhaar] = useState("");
-  const [aadhaarFile, setAadhaarFile] = useState(null);
-  const [aadhaarPreview, setAadhaarPreview] = useState(null);
-  const [error, setError] = useState({ aadhaar: false, file: false });
-  const [fileUploaded, setFileUploaded] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [aadhaar, setAadhaar] = useState<string>("");
+  const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
+  const [aadhaarPreview, setAadhaarPreview] = useState<string | null>(null);
+  const [error, setError] = useState<{ aadhaar: boolean; file: boolean }>({
+    aadhaar: false,
+    file: false,
+  });
+  const [fileUploaded, setFileUploaded] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const Toast = Swal.mixin({
     toast: true,
@@ -23,9 +26,9 @@ const Step1 = () => {
     timerProgressBar: true,
   });
 
-  const validateAadhaar = (num) => /^\d{12}$/.test(num);
+  const validateAadhaar = (num: string): boolean => /^\d{12}$/.test(num);
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -72,7 +75,7 @@ const Step1 = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!aadhaar || !validateAadhaar(aadhaar)) {
@@ -190,7 +193,7 @@ const Step1 = () => {
           ref={fileInputRef}
           type="file"
           className="hidden"
-          accept="image/jpeg,image/jpg,application/pdf" // updated
+          accept="image/jpeg,image/jpg,application/pdf"
           onChange={handleFileUpload}
         />
 

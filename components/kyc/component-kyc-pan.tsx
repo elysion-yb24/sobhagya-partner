@@ -4,16 +4,19 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-const Step2 = () => {
+const Step2: React.FC = () => {
   const router = useRouter();
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [panNumber, setPanNumber] = useState("");
-  const [panFile, setPanFile] = useState(null);
-  const [panPreview, setPanPreview] = useState(null);
-  const [error, setError] = useState({ pan: false, file: false });
-  const [fileUploaded, setFileUploaded] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [panNumber, setPanNumber] = useState<string>("");
+  const [panFile, setPanFile] = useState<File | null>(null);
+  const [panPreview, setPanPreview] = useState<string | null>(null);
+  const [error, setError] = useState<{ pan: boolean; file: boolean }>({
+    pan: false,
+    file: false,
+  });
+  const [fileUploaded, setFileUploaded] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const Toast = Swal.mixin({
     toast: true,
@@ -23,9 +26,10 @@ const Step2 = () => {
     timerProgressBar: true,
   });
 
-  const validatePan = (panNumber) => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber);
+  const validatePan = (panNumber: string): boolean =>
+    /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber);
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -63,7 +67,7 @@ const Step2 = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!panNumber || !validatePan(panNumber)) {
