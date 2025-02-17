@@ -8,12 +8,6 @@ import sharp from "sharp";
 import { getBlobContainerClient } from "@/config/azureStorage";
 import { cookies } from "next/headers";
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable Next.js automatic body parsing
-  },
-};
-
 /**
  * Convert any image to standard sRGB PNG
  */
@@ -30,7 +24,7 @@ async function toStandardPng(buffer) {
 }
 
 /**
- * Resize image to a max dimension of 500x500 px for optimization
+ * Resize image to a max dimension of 500x500 px
  */
 async function resizeImage(imageBuffer) {
   console.time("Image Resize");
@@ -53,7 +47,7 @@ export async function POST(req) {
       );
     }
 
-    // 2️⃣ Validate JWT & extract astrologerId
+    // 2️⃣ Validate JWT & extract `astrologerId`
     const astrologerId = await validateJWT(token).catch((err) => {
       console.error("JWT validation error:", err.message);
       return null;
@@ -69,12 +63,12 @@ export async function POST(req) {
     await connectDB();
     console.log("✅ Database connected successfully");
 
-    // 4️⃣ Parse FormData
+    // 4️⃣ Parse `multipart/form-data` with `req.formData()`
     console.time("Parsing Form Data");
     const formData = await req.formData();
     console.timeEnd("Parsing Form Data");
 
-    // 5️⃣ Validate displayName
+    // 5️⃣ Validate `displayName`
     const displayName = formData.get("displayName");
     if (!displayName || typeof displayName !== "string" || !displayName.trim()) {
       return new Response(
@@ -83,7 +77,7 @@ export async function POST(req) {
       );
     }
 
-    // 6️⃣ Validate profilePic
+    // 6️⃣ Validate `profilePic`
     const profilePic = formData.get("profilePic");
     if (!profilePic || !(profilePic instanceof Blob)) {
       return new Response(
@@ -92,7 +86,7 @@ export async function POST(req) {
       );
     }
 
-    // 7️⃣ Convert Blob to Buffer
+    // 7️⃣ Convert Blob → Buffer
     console.time("Convert File to Buffer");
     let fileBuffer = Buffer.from(await profilePic.arrayBuffer());
     console.timeEnd("Convert File to Buffer");

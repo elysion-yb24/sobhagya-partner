@@ -1,19 +1,13 @@
-import Kyc from "@/models/kyc";
 import connectDB from "@/config/db";
-import validateJWT from "@/middlewares/jwtValidation";
 import fs from "fs-extra";
 import { v4 as uuidv4 } from "uuid";
 import { fileTypeFromBuffer } from "file-type";
 import pdfPoppler from "pdf-poppler";
 import sharp from "sharp";
 import { getBlobContainerClient } from "@/config/azureStorage";
+import Kyc from "@/models/kyc";
+import validateJWT from "@/middlewares/jwtValidation";
 import { cookies } from "next/headers";
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 /**
  * Convert PDF to JPEG (First Page Only)
@@ -48,13 +42,15 @@ async function toStandardPng(buffer) {
 
 export async function POST(req) {
   try {
-    console.log("Inside backend: /api/kyc/pan (No Background Removal)");
     console.time("Total Processing Time");
 
     // ✅ Extract JWT token from cookies
     const token = cookies().get("token")?.value;
     if (!token) {
-      return new Response(JSON.stringify({ success: false, message: "Unauthorized." }), { status: 401 });
+      return new Response(
+        JSON.stringify({ success: false, message: "Unauthorized." }),
+        { status: 401 }
+      );
     }
 
     // ✅ Validate JWT and extract astrologerId
@@ -62,9 +58,11 @@ export async function POST(req) {
       console.error("JWT validation error:", error.message);
       return null;
     });
-
     if (!astrologerId) {
-      return new Response(JSON.stringify({ success: false, message: "Invalid token." }), { status: 403 });
+      return new Response(
+        JSON.stringify({ success: false, message: "Invalid token." }),
+        { status: 403 }
+      );
     }
 
     // ✅ Connect to the database
@@ -79,13 +77,19 @@ export async function POST(req) {
     const panNumber = formData.get("panNumber");
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
     if (!panNumber || !panRegex.test(panNumber)) {
-      return new Response(JSON.stringify({ success: false, message: "Invalid PAN number format." }), { status: 400 });
+      return new Response(
+        JSON.stringify({ success: false, message: "Invalid PAN number format." }),
+        { status: 400 }
+      );
     }
 
     // ✅ Validate PAN File
     const panFile = formData.get("panFile");
     if (!panFile || !(panFile instanceof Blob)) {
-      return new Response(JSON.stringify({ success: false, message: "PAN file is required." }), { status: 400 });
+      return new Response(
+        JSON.stringify({ success: false, message: "PAN file is required." }),
+        { status: 400 }
+      );
     }
 
     // ✅ Convert File (Blob) to Buffer

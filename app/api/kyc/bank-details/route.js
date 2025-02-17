@@ -8,12 +8,6 @@ import { fileTypeFromBuffer } from "file-type";
 import { getBlobContainerClient } from "@/config/azureStorage";
 import { cookies } from "next/headers";
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable Next.js body parsing in favor of `req.formData()`
-  },
-};
-
 /**
  * Max file size for cancelled cheque (5 MB).
  */
@@ -112,7 +106,7 @@ export async function POST(req) {
     let fileBuffer = Buffer.from(await cancelledCheque.arrayBuffer());
     console.timeEnd("Convert File to Buffer");
 
-    // 9️⃣ Check file size (instead of `fs.statSync`)
+    // 9️⃣ Check file size
     if (fileBuffer.length > MAX_FILE_SIZE) {
       return new Response(
         JSON.stringify({
@@ -123,17 +117,12 @@ export async function POST(req) {
       );
     }
 
-    // 🔟 Detect file type (MIME)
-    // If needed, we can also do `fileTypeFromBuffer(fileBuffer)`
-    // and ensure it's "image/jpeg" or "image/png" if you want.
-    // But let's assume `uploadFileToAzure` or you just accept images here.
-    // For completeness:
-    // import { fileTypeFromBuffer } from "file-type";
-    const mimeType = cancelledCheque.type || "image/jpeg"; // fallback
+    // 🔟 Determine file MIME type (If needed, do extra checks via `fileTypeFromBuffer`)
+    const mimeType = cancelledCheque.type || "image/jpeg";
 
-    // 1️⃣1️⃣ Upload to Azure (using buffer instead of file path)
+    // 1️⃣1️⃣ Upload to Azure (using buffer)
     console.time("Azure Upload");
-    const uniqueName = `${uuidv4()}-cancelledCheque.png`; // or .jpg based on detection
+    const uniqueName = `${uuidv4()}-cancelledCheque.png`; // or .jpg as needed
     const containerClient = getBlobContainerClient("images");
     await containerClient.createIfNotExists({ access: "blob" });
 
