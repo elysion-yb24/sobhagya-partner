@@ -3,15 +3,16 @@ const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
     eslint: {
-        ignoreDuringBuilds: true,
+      ignoreDuringBuilds: true,
     },
     experimental: {
-        outputFileTracingRoot: __dirname, // Helps prevent infinite loops
+      outputFileTracingRoot: __dirname,
     },
     images: {
-        unoptimized: true, // Skips Next.js image optimization (useful for Azure/Cloudinary)
+      unoptimized: true,
     },
     output: "standalone",
-};
-
-module.exports = nextConfig;
+  };
+  
+  module.exports = nextConfig;
+  
