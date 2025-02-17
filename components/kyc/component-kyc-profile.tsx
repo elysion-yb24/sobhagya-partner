@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -95,9 +96,10 @@ const ProfileUpload: React.FC = () => {
       return;
     }
 
+    // ✅ Build FormData for the request
     const formData = new FormData();
     formData.append("displayName", displayName.trim());
-    formData.append("displayPic", displayPic);
+    formData.append("profilePic", displayPic);
 
     setLoading(true);
     try {

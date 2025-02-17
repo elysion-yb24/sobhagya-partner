@@ -56,7 +56,7 @@ const Step1: React.FC = () => {
 
     Toast.fire({
       icon: "success",
-      title: "Aadhaar file uploaded successfully.",
+      title: "Aadhar file uploaded successfully.",
     });
   };
 
@@ -71,7 +71,7 @@ const Step1: React.FC = () => {
 
     Toast.fire({
       icon: "info",
-      title: "You can upload a new Aadhaar file.",
+      title: "You can upload a new Aadhar file.",
     });
   };
 
@@ -82,7 +82,7 @@ const Step1: React.FC = () => {
       setError((prev) => ({ ...prev, aadhaar: true }));
       Toast.fire({
         icon: "error",
-        title: "Invalid Aadhaar number. It must be a 12-digit number.",
+        title: "Invalid Aadhar number. It must be a 12-digit number.",
       });
       return;
     }
@@ -91,7 +91,7 @@ const Step1: React.FC = () => {
       setError((prev) => ({ ...prev, file: true }));
       Toast.fire({
         icon: "error",
-        title: "Please upload an Aadhaar file.",
+        title: "Please upload an Aadhar file.",
       });
       return;
     }
@@ -127,14 +127,14 @@ const Step1: React.FC = () => {
       } else {
         Toast.fire({
           icon: "error",
-          title: result.message || "Failed to submit Aadhaar details.",
+          title: result.message || "Failed to submit Aadhar details.",
         });
       }
     } catch (err) {
       console.error("Error submitting KYC Step 1:", err);
       Toast.fire({
         icon: "error",
-        title: "An error occurred while submitting Aadhaar details.",
+        title: "An error occurred while submitting Aadhar details.",
       });
     } finally {
       setLoading(false);
@@ -147,7 +147,7 @@ const Step1: React.FC = () => {
         1 / 4
       </p>
       <h1 className="text-xl text-black font-bold font-inter text-center">
-        Upload Your Aadhaar Card
+        Upload Your Aadhar Card
       </h1>
 
       {/* Preview */}
@@ -187,7 +187,7 @@ const Step1: React.FC = () => {
             className="h-auto w-auto"
             priority
           />
-          Upload Aadhaar
+          Upload Aadhar
         </button>
         <input
           ref={fileInputRef}
@@ -210,13 +210,13 @@ const Step1: React.FC = () => {
             className="h-auto w-auto"
             priority
           />
-          Edit Aadhaar
+          Edit Aadhar
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <label htmlFor="aadhaar" className="font-inter">
-          Enter Aadhaar Number <span className="text-red-500">*</span>
+          Enter Aadhar Number <span className="text-red-500">*</span>
         </label>
         <input
           id="aadhaar"
@@ -233,7 +233,7 @@ const Step1: React.FC = () => {
           }}
         />
         {error.aadhaar && (
-          <p className="text-red-500 text-sm">Aadhaar must be a 12-digit number.</p>
+          <p className="text-red-500 text-sm">Aadhar must be a 12-digit number.</p>
         )}
 
         <button
