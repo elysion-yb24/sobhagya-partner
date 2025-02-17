@@ -9,12 +9,6 @@ import Kyc from "@/models/kyc";
 import validateJWT from "@/middlewares/jwtValidation";
 import { cookies } from "next/headers";
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable automatic body parsing for file upload
-  },
-};
-
 /**
  * Convert PDF to JPEG (First Page Only)
  */
@@ -54,7 +48,6 @@ export async function POST(req) {
       console.error("JWT validation error:", error.message);
       return null;
     });
-
     if (!astrologerId) {
       return new Response(
         JSON.stringify({ success: false, message: "Invalid token." }),
@@ -90,12 +83,12 @@ export async function POST(req) {
 
     // ✅ Convert File (Blob) to Buffer
     console.time("Convert File to Buffer");
-    let fileBuffer = Buffer.from(await aadharFile.arrayBuffer()); // use `let`
+    let fileBuffer = Buffer.from(await aadharFile.arrayBuffer());
     console.timeEnd("Convert File to Buffer");
 
     // ✅ Detect File Type
     console.time("Detect File Type");
-    let fileType = await fileTypeFromBuffer(fileBuffer); // use `let`
+    let fileType = await fileTypeFromBuffer(fileBuffer);
     console.timeEnd("Detect File Type");
     console.log("Detected File Type:", fileType?.mime);
 
@@ -108,20 +101,20 @@ export async function POST(req) {
 
       // Convert first page of PDF to JPEG
       const imagePath = await convertPdfToImage(tempPdfPath);
-      fileBuffer = await fs.readFile(imagePath); // reassign is allowed with `let`
-      fileType = await fileTypeFromBuffer(fileBuffer); // reassign with `let`
+      fileBuffer = await fs.readFile(imagePath);
+      fileType = await fileTypeFromBuffer(fileBuffer);
       console.timeEnd("PDF Conversion");
     }
 
     // ✅ Preprocess Image
     console.time("Image Preprocessing");
     console.log("Preprocessing image...");
-    fileBuffer = await preprocessImage(fileBuffer); // reassign with `let`
+    fileBuffer = await preprocessImage(fileBuffer);
     console.timeEnd("Image Preprocessing");
 
     // ✅ Upload to Azure Storage
     console.time("Azure Upload");
-    const uniqueName = `${uuidv4()}-aadhaar.png`; // or any naming scheme
+    const uniqueName = `${uuidv4()}-aadhaar.png`;
     const containerName = "images";
     const containerClient = getBlobContainerClient(containerName);
     await containerClient.createIfNotExists({ access: "blob" });
