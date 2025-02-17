@@ -3,9 +3,19 @@ import Astrologer from "@/models/astrologer";
 import { verifyToken } from "@/utils/verifyToken";
 import { cookies } from "next/headers";
 
+/**
+ * Force dynamic usage so Next.js never tries static generation.
+ * This also disables any caching or revalidation attempts.
+ */
+export const dynamic = "force-dynamic";     // Tells Next.js this route is dynamic
+export const revalidate = 0;               // Disables ISR
+export const fetchCache = "force-no-store"; // Prevents caching
+
 export async function GET() {
   try {
-    // Extract JWT token from cookies
+    console.log("Inside /api/auth/register/astrologerStatus");
+
+    // 1) Extract JWT token from cookies
     const token = cookies().get("token")?.value;
     if (!token) {
       return new Response(
@@ -14,7 +24,7 @@ export async function GET() {
       );
     }
 
-    // Verify the token and extract astrologer ID
+    // 2) Verify the token and extract astrologer ID
     const astrologerId = verifyToken(token);
     if (!astrologerId) {
       return new Response(
@@ -23,14 +33,13 @@ export async function GET() {
       );
     }
 
-    // Connect to MongoDB if not already connected
+    // 3) Connect to MongoDB if not already connected
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGODB_URI);
     }
 
-    // Fetch astrologer details from DB
+    // 4) Fetch astrologer details
     const astrologer = await Astrologer.findById(astrologerId);
-
     if (!astrologer) {
       return new Response(
         JSON.stringify({ success: false, error: "Astrologer not found" }),
@@ -38,14 +47,16 @@ export async function GET() {
       );
     }
 
+    // 5) Return interviewStatus
     return new Response(
       JSON.stringify({
         success: true,
-        interviewStatus: astrologer.interviewStatus,
+        interviewStatus: astrologer.interviewStatus
       }),
       { status: 200 }
     );
   } catch (error) {
+    console.error("Error fetching astrologer details:", error);
     return new Response(
       JSON.stringify({ success: false, error: "Server error" }),
       { status: 500 }
