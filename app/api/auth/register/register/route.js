@@ -3,6 +3,11 @@ import Kyc from "@/models/kyc";
 import validateJWT from "@/middlewares/jwtValidation";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
+
 export async function GET() {
   try {
     await connectDB();

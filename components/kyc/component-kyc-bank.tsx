@@ -206,7 +206,7 @@ const Step4: React.FC = () => {
         </label>
 
         {/* Submit Button */}
-        <button type="submit" className="btn w-full text-white font-inter bg-[#FFCD66]" disabled={loading}>
+        <button type="submit" className="btn w-full text-white font-inter font-bold bg-[#FFCD66]" disabled={loading}>
           {loading ? "Submitting..." : "Continue"}
         </button>
       </form>

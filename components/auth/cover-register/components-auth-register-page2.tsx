@@ -214,12 +214,12 @@ const Step2Form: React.FC = () => {
           <p className="text-black">Resend OTP in {seconds}s</p>
         ) : (
           <button type="button" className="text-[#E9890A] cursor-pointer" onClick={handleResendOTP}>
-            {resending ? "Resending..." : "Send OTP"}
+            {resending ? "Resending..." : "Did Not Get OTP: Resend OTP"}
           </button>
         )}
       </div>
 
-      <button type="submit" className="btn mx-auto w-[60%] text-white font-inter bg-[#FFCD66] my-5" disabled={loading}>
+      <button type="submit" className="btn mx-auto w-[60%] text-white font-inter font-bold bg-[#FFCD66] my-5" disabled={loading}>
         {loading ? "Verifying..." : "Continue"}
       </button>
     </form>

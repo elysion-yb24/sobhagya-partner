@@ -15,9 +15,9 @@ const Step2: React.FC = () => {
     pan: false,
     file: false,
   });
-  const [fileUploaded, setFileUploaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // SweetAlert Instance
   const Toast = Swal.mixin({
     toast: true,
     position: "top",
@@ -26,9 +26,11 @@ const Step2: React.FC = () => {
     timerProgressBar: true,
   });
 
+  // PAN Validation (Format: ABCDE1234F)
   const validatePan = (panNumber: string): boolean =>
     /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber);
 
+  // Handle PAN File Upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -45,28 +47,14 @@ const Step2: React.FC = () => {
     setPanFile(file);
     setPanPreview(URL.createObjectURL(file));
     setError((prev) => ({ ...prev, file: false }));
-    setFileUploaded(true);
+
     Toast.fire({
       icon: "success",
       title: "PAN file uploaded successfully.",
     });
   };
 
-  const handleEdit = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    setPanFile(null);
-    setPanPreview(null);
-    setFileUploaded(false);
-    setError((prev) => ({ ...prev, file: false }));
-
-    Toast.fire({
-      icon: "info",
-      title: "You can upload a new PAN file.",
-    });
-  };
-
+  // Submit Handler
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -74,7 +62,7 @@ const Step2: React.FC = () => {
       setError((prev) => ({ ...prev, pan: true }));
       Toast.fire({
         icon: "error",
-        title: "Invalid PAN number. Please ensure it follows the format ABCDE1234F.",
+        title: "Invalid PAN number. Format: ABCDE1234F.",
       });
       return;
     }
@@ -105,7 +93,6 @@ const Step2: React.FC = () => {
         setPanNumber("");
         setPanFile(null);
         setPanPreview(null);
-        setFileUploaded(false);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -133,107 +120,75 @@ const Step2: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <p className="text-center text-[#9C9AA5] text-sm font-inter -mt-2 mb-2">
+    <div className="flex flex-col items-center mb-8">
+      <p className="text-center text-[#9C9AA5] text-sm font-inter mb-2">
         2 / 4
       </p>
-      <h1 className="text-xl text-black font-bold font-inter text-center">
+      <h1 className="text-2xl text-black font-bold font-inter text-center mb-4">
         Upload Your PAN Card
       </h1>
 
-      {/* PAN Preview */}
-      {panPreview ? (
-        <div className="w-[150px] h-[150px] rounded-full border-4 border-[#FFCD66] overflow-hidden my-4">
-          <Image
-            src={panPreview}
-            alt="PAN Preview"
-            width={150}
-            height={150}
-            className="object-cover w-full h-full"
-            priority
-          />
+      {/* PREVIEW Section - Matches Aadhaar Upload */}
+      {panPreview && (
+        <div className="flex gap-4 mb-4 w-[320px] justify-start">
+          <div className="w-[80px] h-[80px] border-2 border-[#FFCD66] overflow-hidden">
+            <Image
+              src={panPreview}
+              alt="PAN Preview"
+              width={80}
+              height={80}
+              className="object-cover w-full h-full"
+              priority
+            />
+          </div>
         </div>
-      ) : (
-        <Image
-          className="mx-auto my-[5%]"
-          src="/assets/images/Group-2.png"
-          alt="Logo"
-          width={150}
-          height={100}
-          priority
-        />
       )}
 
-      <div className="flex justify-center items-center w-full max-w-[600px] gap-3 mt-6 mb-4">
-        {/* Upload PAN Card Button */}
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="flex items-center justify-center w-1/2 py-2 px-4 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
-        >
-          <Image
-            src="/assets/images/Upload.png"
-            alt="Upload PAN Card"
-            width={20}
-            height={20}
-            className="h-auto w-auto"
-            priority
-          />
-          Upload PAN
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          accept="image/*"
-          onChange={handleFileUpload}
-        />
+      {/* Upload/Re-upload Button */}
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        className="w-[320px] py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg"
+      >
+        {panPreview ? "Re-Upload PAN" : "Upload PAN"}
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileUpload}
+      />
 
-        {/* Edit PAN Card Button */}
-        <button
-          type="button"
-          onClick={handleEdit}
-          className="flex items-center justify-center w-1/2 py-2 px-4 bg-white border border-[#FFCD66] text-black font-inter rounded-lg gap-2 cursor-pointer whitespace-nowrap"
-        >
-          <Image
-            src="/assets/images/Edit.png"
-            alt="Edit PAN Card"
-            width={20}
-            height={20}
-            className="h-auto w-auto"
-            priority
+      <form onSubmit={handleSubmit} className="flex flex-col items-center mt-6">
+        <div className="flex flex-col w-[320px]">
+          <label htmlFor="pan" className="font-inter mb-1">
+            Enter PAN Number <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="pan"
+            name="pan"
+            type="text"
+            placeholder="PAN Number"
+            className={`placeholder:text-gray-400 border rounded-lg px-3 py-2 ${
+              error.pan ? "border-red-500" : "border-[#FFCD66]"
+            }`}
+            value={panNumber}
+            onChange={(e) => {
+              setError((prev) => ({ ...prev, pan: false }));
+              setPanNumber(e.target.value);
+            }}
           />
-          Edit PAN
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="w-full max-w-md">
-        <label htmlFor="pan" className="font-inter">
-          Enter PAN Number <span className="text-red-500">*</span>
-        </label>
-        <input
-          id="pan"
-          name="pan"
-          type="text"
-          placeholder="PAN Number"
-          className={`form-input placeholder:text-gray-400 border ${
-            error.pan ? "border-red-500" : "border-[#FFCD66]"
-          }`}
-          value={panNumber}
-          onChange={(e) => {
-            setError((prev) => ({ ...prev, pan: false }));
-            setPanNumber(e.target.value);
-          }}
-        />
-        {error.pan && (
-          <p className="text-red-500 text-sm">
-            PAN must follow the format (ABCDE1234F).
-          </p>
-        )}
+          {error.pan && (
+            <p className="text-red-500 text-sm mt-1">
+              PAN must follow the format (ABCDE1234F).
+            </p>
+          )}
+        </div>
 
         <button
           type="submit"
-          className="btn mx-auto w-[60%] text-white font-inter bg-[#FFCD66] my-10"
+          className="w-[320px] mt-6 py-2 bg-[#FFCD66] text-white font-bold font-inter rounded-lg"
           disabled={loading}
         >
           {loading ? "Submitting..." : "Continue"}

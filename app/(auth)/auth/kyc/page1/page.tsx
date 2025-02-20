@@ -24,7 +24,7 @@ const KYC = () => {
             </div>
 
             {/* Footer - Now Always Sticks to the Bottom on Mobile */}
-            <p className="absolute bottom-5 left-0 w-full text-center text-[10px] dark:text-white md:text-xs md:bottom-20 ">
+            <p className="absolute bottom-5 left-0 w-full text-center text-[10px] dark:text-white md:text-xs md:bottom-5 ">
                 © {new Date().getFullYear()}. Elysion Softwares All Rights Reserved.
             </p>
         </div>

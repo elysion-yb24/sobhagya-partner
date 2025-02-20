@@ -39,7 +39,7 @@ const Step3Form: React.FC = () => {
   ];
 
   const allAstrologyTypes: string[] = [
-    "Vedic", "Vastu", "Tarot Reading", "Reiki Healing", "Palmistry", "KP", "Prashna",
+    "Vedic", "Vastu", "Tarrot Reading", "Reiki Healing", "Palmistry", "KP", "Prashna",
     "Meditation & Mindfulness", "Yoga & Meditation", "Psychics", "Pranic Healing",
     "Feng Shui", "Fortune Telling", "Face Reading", "Numerology", "Others"
   ];
@@ -256,7 +256,7 @@ const Step3Form: React.FC = () => {
               <span
                 key={lang}
                 onClick={() => handleRemoveEntry("languages", lang)}
-                className="bg-[#FFCD66] text-white px-3 py-1 rounded-full cursor-pointer"
+                className="bg-[#FFCD66] text-white font-bold px-3 py-1 rounded-full cursor-pointer"
               >
                 {lang} ×
               </span>
@@ -314,7 +314,7 @@ const Step3Form: React.FC = () => {
               <span
                 key={type}
                 onClick={() => handleRemoveEntry("astrologerTypes", type)}
-                className="bg-[#FFCD66] text-white px-3 py-1 rounded-full cursor-pointer"
+                className="bg-[#FFCD66] text-white px-3 py-1 font-bold rounded-full cursor-pointer"
               >
                 {type} ×
               </span>

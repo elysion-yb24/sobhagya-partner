@@ -13,10 +13,12 @@ export const fetchCache = "force-no-store"; // Prevents caching
 
 export async function GET() {
   try {
-    console.log("Inside /api/auth/register/astrologerStatus");
+    console.log("Inside /api/check-details");
 
-    // 1) Extract JWT token from cookies
+    // 1) Extract JWT token from cookies (server-side)
     const token = cookies().get("token")?.value;
+    console.log("Extracted Token:", token); // ✅ Debugging log
+
     if (!token) {
       return new Response(
         JSON.stringify({ success: false, error: "Unauthorized" }),
@@ -26,6 +28,8 @@ export async function GET() {
 
     // 2) Verify the token and extract astrologer ID
     const astrologerId = verifyToken(token);
+    console.log("Verified Astrologer ID:", astrologerId); // ✅ Debugging log
+
     if (!astrologerId) {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid token" }),
@@ -33,13 +37,15 @@ export async function GET() {
       );
     }
 
-    // 3) Connect to MongoDB if not already connected
+    // 3) Connect to MongoDB only if not connected
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGODB_URI);
     }
 
     // 4) Fetch astrologer details
-    const astrologer = await Astrologer.findById(astrologerId);
+    const astrologer = await Astrologer.findById(astrologerId).select("isDetailsFilled");
+    console.log("Astrologer Details:", astrologer); // ✅ Debugging log
+
     if (!astrologer) {
       return new Response(
         JSON.stringify({ success: false, error: "Astrologer not found" }),
@@ -47,12 +53,11 @@ export async function GET() {
       );
     }
 
-    // 5) Return interviewStatus
+    // 5) Return response
     return new Response(
       JSON.stringify({
         success: true,
-        interviewStatus: astrologer.interviewStatus,
-        isDetailsFilled: astrologer.isDetailsFilled
+        isDetailsFilled: astrologer.isDetailsFilled || false,
       }),
       { status: 200 }
     );

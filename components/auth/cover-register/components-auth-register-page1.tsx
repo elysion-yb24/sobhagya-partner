@@ -169,7 +169,7 @@ const Step1Form = () => {
       {/* Continue Button */}
       <button
         type="submit"
-        className="btn mx-auto w-[60%] text-white font-inter bg-[#FFCD66] my-10"
+        className="btn mx-auto w-[60%] text-white font-inter font-bold bg-[#FFCD66] my-10"
         disabled={loading}
       >
         {loading ? "Sending..." : "Continue"}

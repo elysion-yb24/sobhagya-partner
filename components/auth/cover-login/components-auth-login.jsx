@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
+import { AppProgressBar } from 'next-nprogress-bar'; // Import progress bar
 
 function SendOtpComponent() {
     const [isChecked, setIsChecked] = useState(true);
@@ -20,6 +21,10 @@ function SendOtpComponent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Start Progress Bar when form is submitted
+        window.dispatchEvent(new Event("start-progress"));
+
         try {
             const phoneNumber = e.target[0].value;
 
@@ -30,6 +35,9 @@ function SendOtpComponent() {
                     title: 'Invalid Mobile Number',
                 });
                 e.target.reset();
+                
+                // Stop progress bar on error
+                window.dispatchEvent(new Event("stop-progress"));
                 return;
             }
 
@@ -50,6 +58,9 @@ function SendOtpComponent() {
                     icon: 'success',
                     title: result.message,
                 });
+
+                // Stop progress bar before redirecting
+                window.dispatchEvent(new Event("stop-progress"));
                 router.push('/auth/login-verifyOtp');
             } else {
                 Toast.fire({
@@ -57,6 +68,9 @@ function SendOtpComponent() {
                     title: result.message,
                 });
                 e.target.reset();
+                
+                // Stop progress bar on error
+                window.dispatchEvent(new Event("stop-progress"));
             }
         } catch (err) {
             console.error('Error:', err);
@@ -64,11 +78,21 @@ function SendOtpComponent() {
                 icon: 'info',
                 title: 'Something went wrong. Please try again.',
             });
+
+            // Stop progress bar on error
+            window.dispatchEvent(new Event("stop-progress"));
         }
     };
 
     return (
         <div className={`w-full min-h-screen flex items-center justify-center relative flex-col md:flex-row bg-desktop`}>
+            <AppProgressBar
+                height="4px"
+                color="#4287f5"
+                options={{ showSpinner: false }}
+                shallowRouting={false}
+            />
+
             <div className="flex w-full flex-col md:flex-row items-center">
                 {/* Branding Section */}
                 <div className="w-full md:max-w-[30%] flex flex-col md:items-start text-center -mt-20 md:text-left ml-0 md:ml-[15%]">

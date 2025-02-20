@@ -65,7 +65,7 @@ function RegisterComponent3() {
   // Handle KYC step navigation
   const handleSignOut = async () => {
     try {
-      const response = await fetch("/api/auth/logout/logout", {
+      const response = await fetch("/api/auth/logout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -177,7 +177,7 @@ function RegisterComponent3() {
           <button
             type="button"
             onClick={handleSignOut}
-            className="btn mx-auto text-white font-inter bg-[#FFCD66] my-5 px-20"
+            className="btn mx-auto text-white font-inter font-bold bg-[#FFCD66] my-5 px-20"
           >
             Logout
           </button>

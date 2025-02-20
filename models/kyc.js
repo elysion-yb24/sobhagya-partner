@@ -8,7 +8,8 @@ const kycSchema = new mongoose.Schema(
     page3Filled:{ type: Boolean, default: false },
     page4Filled:{ type: Boolean, default: false },
     aadharNumber: { type: String, required: false },
-    aadharFile: { type: String, required: false }, // URL for Aadhar card
+    aadharFrontFile: { type: String, required: false }, // URL for Aadhar card
+    aadharBackFile: { type: String, required: false }, // URL for Aadhar card
     panNumber: { type: String, required: false },
     panFile: { type: String, required: false }, // URL for PAN card
     displayName: { type: String, required: false },

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import jsPDF from "jspdf";
+import { useRouter } from "next/navigation";
 import html2canvas from "html2canvas";
 
 interface AstrologerData {
@@ -11,6 +12,7 @@ interface AstrologerData {
 }
 
 const AgreementComponent: React.FC = () => {
+  const router = useRouter();
   const [astrologerData, setAstrologerData] = useState<AstrologerData>({
     name: "Loading...",
     date: "Loading...",
@@ -63,55 +65,44 @@ const AgreementComponent: React.FC = () => {
 
   const downloadPDF = async () => {
     if (!agreementRef.current) return;
-
+  
     const buttons = document.getElementById("action-buttons");
     if (buttons) buttons.style.display = "none";
-
+  
     setTimeout(async () => {
+      window.scrollTo(0, 0); // Scroll to top to capture header
       const canvas = await html2canvas(agreementRef.current as HTMLElement, {
         scale: 3,
         useCORS: true,
+        scrollY: -window.scrollY, // Capture the header as well
         windowWidth: document.documentElement.offsetWidth,
         windowHeight: agreementRef.current?.scrollHeight || 1000,
       });
-
+  
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const imgWidth = 210;
       const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let y = 0;
-
+  
       while (y < imgHeight) {
         pdf.addImage(imgData, "PNG", 0, -y, imgWidth, imgHeight);
         y += pageHeight;
         if (y < imgHeight) pdf.addPage();
       }
-
+  
       pdf.save("agreement.pdf");
-
+  
       if (buttons) buttons.style.display = "flex";
     }, 500);
   };
+  
 
-  const handleSignOut = async () => {
-    try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-
-      const result = await response.json();
-      if (result?.success) {
-        window.location.href = "/";
-      } else {
-        alert("Sign-out failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+  const handleContinue = () => {
+    router.push("/auth/kyc/page6");
   };
+  
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen py-8">
@@ -179,22 +170,42 @@ const AgreementComponent: React.FC = () => {
               <p className="mt-2">Name: Xyx</p>
               <p className="mt-1">Position: Manager</p>
               <p className="mt-1">Date: 10-Dec-2024</p>
-              <p className="mt-1">Signature: _____________</p>
+              
             </div>
 
-            <div className="w-full md:w-1/2 mt-4 md:mt-0">
-              <p className="font-bold">For Astrologer:</p>
-              <p className="mt-2">Name: {astrologerData.name}</p>
-              <p className="mt-1">Date: {astrologerData.date}</p>
-              <SignatureCanvas ref={signatureRef} penColor="black" canvasProps={{ width: 300, height: 100, className: "border border-gray-300 rounded-lg mt-2" }} />
-              <button onClick={clearSignature} className="text-blue-500 text-sm mt-2">Clear Signature</button>
-            </div>
+            <div className="w-full md:w-1/2 mt-4 md:mt-0 relative">
+  <p className="font-bold">For Astrologer:</p>
+  <p className="mt-2">Name: {astrologerData.name}</p>
+  <p className="mt-1">Date: {astrologerData.date}</p>
+  
+  <div className="relative">
+    <SignatureCanvas
+      ref={signatureRef}
+      penColor="black"
+      canvasProps={{
+        width: 300,
+        height: 100,
+        className: "border border-gray-300 rounded-lg mt-2"
+      }}
+    />
+    {!signatureRef.current?.isEmpty() || (
+      <span className="absolute top-1/2 left-1/2 text-gray-400 text-sm -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+        Sign Here
+      </span>
+    )}
+  </div>
+  
+  <button onClick={clearSignature} className="text-blue-500 text-sm mt-2">
+    Clear Signature
+  </button>
+</div>
+
           </div>
         </div>
 
         <div id="action-buttons" className="flex justify-between mt-6">
-          <button onClick={downloadPDF} className="btn w-[48%] bg-[#FFCD66] text-white">Download Agreement</button>
-          <button onClick={handleSignOut} className="btn w-[48%] bg-[#FFCD66] text-white">Sign Out</button>
+          <button onClick={downloadPDF} className="btn w-[48%] bg-[#FFCD66] text-white font-bold">Download Agreement</button>
+          <button onClick={handleContinue} className="btn w-[48%] bg-[#FFCD66] text-white font-bold">Continue</button>
         </div>
       </div>
     </div>

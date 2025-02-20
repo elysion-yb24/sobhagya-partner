@@ -1,39 +1,32 @@
 import Kyc from "@/models/kyc";
 import connectDB from "@/config/db";
 import validateJWT from "@/middlewares/jwtValidation";
-import fs from "fs-extra";
 import { v4 as uuidv4 } from "uuid";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
 import { getBlobContainerClient } from "@/config/azureStorage";
 import { cookies } from "next/headers";
 
-// ✅ Remove Next.js default body parser
 export const dynamic = "force-dynamic";
 
 /**
- * Convert any image to PNG format
+ * Convert any image buffer to PNG format
  */
 async function toStandardPng(buffer) {
-  console.time("Image to Standard PNG Conversion");
-  const result = await sharp(buffer)
+  return await sharp(buffer)
     .withMetadata()
-    .flatten({ background: "#ffffff" }) // Ensure white background
     .toColourspace("srgb")
     .png({ compressionLevel: 6, force: true })
     .toBuffer();
-  console.timeEnd("Image to Standard PNG Conversion");
-  return result;
 }
 
 /**
- * Resize image to a max dimension of 800x800 px
+ * Resize image to max 800x800 px
  */
 async function resizeImage(imageBuffer) {
-  console.time("Image Resize");
-  const resized = await sharp(imageBuffer).resize(800, 800, { fit: "inside" }).toBuffer();
-  console.timeEnd("Image Resize");
-  return resized;
+  return await sharp(imageBuffer)
+    .resize(800, 800, { fit: "inside" })
+    .toBuffer();
 }
 
 export async function POST(req) {
@@ -41,31 +34,37 @@ export async function POST(req) {
     console.log("Inside backend: /api/kyc/aadhar");
     console.time("Total Processing Time");
 
-    // ✅ Extract JWT token from cookies
+    // 1) Extract token from cookies
     const token = cookies().get("token")?.value;
     if (!token) {
-      return new Response(JSON.stringify({ success: false, message: "Unauthorized." }), { status: 401 });
+      return new Response(
+        JSON.stringify({ success: false, message: "Unauthorized." }),
+        { status: 401 }
+      );
     }
 
-    // ✅ Validate JWT & extract astrologerId
+    // 2) Validate JWT
     const astrologerId = await validateJWT(token).catch((err) => {
       console.error("JWT validation error:", err.message);
       return null;
     });
     if (!astrologerId) {
-      return new Response(JSON.stringify({ success: false, message: "Invalid token." }), { status: 403 });
+      return new Response(
+        JSON.stringify({ success: false, message: "Invalid token." }),
+        { status: 403 }
+      );
     }
 
-    // ✅ Connect to database
+    // 3) Connect to DB
     await connectDB();
     console.log("✅ Database connected successfully");
 
-    // ✅ Parse FormData
+    // 4) Parse FormData
     console.time("Parsing Form Data");
     const formData = await req.formData();
     console.timeEnd("Parsing Form Data");
 
-    // ✅ Validate Aadhaar Number
+    // 5) Validate Aadhaar Number
     const aadharNumber = formData.get("aadharNumber");
     if (!aadharNumber || !/^\d{12}$/.test(aadharNumber)) {
       return new Response(
@@ -74,72 +73,103 @@ export async function POST(req) {
       );
     }
 
-    // ✅ Validate Aadhaar File
-    const aadharFile = formData.get("aadharFile");
-    if (!aadharFile || !(aadharFile instanceof Blob)) {
-      return new Response(JSON.stringify({ success: false, message: "Aadhaar file is required." }), { status: 400 });
-    }
+    // 6) Extract both front and back files
+    const aadharFrontFile = formData.get("aadharFrontFile");
+    const aadharBackFile = formData.get("aadharBackFile");
 
-    // ✅ Convert Blob to Buffer
-    console.time("Convert File to Buffer");
-    let fileBuffer = Buffer.from(await aadharFile.arrayBuffer());
-    console.timeEnd("Convert File to Buffer");
-
-    // ✅ Detect File Type
-    console.time("Detect File Type");
-    let fileType = await fileTypeFromBuffer(fileBuffer);
-    console.timeEnd("Detect File Type");
-    console.log("Detected File Type:", fileType?.mime);
-
-    // ✅ Only accept JPEG/PNG
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (!fileType || !allowedMimeTypes.includes(fileType.mime)) {
+    if (!aadharFrontFile || !(aadharFrontFile instanceof Blob)) {
       return new Response(
-        JSON.stringify({ success: false, message: "Invalid file type. Only JPEG and PNG are allowed." }),
+        JSON.stringify({ success: false, message: "Aadhaar front file is required." }),
+        { status: 400 }
+      );
+    }
+    if (!aadharBackFile || !(aadharBackFile instanceof Blob)) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Aadhaar back file is required." }),
         { status: 400 }
       );
     }
 
-    // ✅ Convert to PNG if needed
-    if (fileType.mime !== "image/png") {
-      console.log("Converting to PNG format...");
-      fileBuffer = await toStandardPng(fileBuffer);
-    }
+    // 7) Process each file: front + back
+    const frontUrl = await processAndUploadImage(aadharFrontFile, "aadharFrontFile");
+    const backUrl = await processAndUploadImage(aadharBackFile, "aadharBackFile");
 
-    // ✅ Resize image to 800x800 px
-    console.log("Resizing image...");
-    fileBuffer = await resizeImage(fileBuffer);
-
-    // ✅ Upload to Azure
-    console.time("Azure Upload");
-    const uniqueName = `${uuidv4()}-aadhaar.png`;
-    const containerClient = getBlobContainerClient("images");
-    await containerClient.createIfNotExists({ access: "blob" });
-
-    const blockBlobClient = containerClient.getBlockBlobClient(uniqueName);
-    await blockBlobClient.uploadData(fileBuffer, { blobHTTPHeaders: { blobContentType: "image/png" } });
-    const azureFileUrl = blockBlobClient.url;
-    console.log("Aadhaar Image uploaded to:", azureFileUrl);
-    console.timeEnd("Azure Upload");
-
-    // ✅ Update MongoDB (KYC)
+    // 8) Update or create Kyc entry
     console.time("MongoDB Update");
-    const kycEntry = await Kyc.findOneAndUpdate(
+    const updatedKyc = await Kyc.findOneAndUpdate(
       { astrologerId },
-      { astrologerId, aadharNumber, aadharFile: azureFileUrl, page1Filled: true },
+      {
+        astrologerId,
+        aadharNumber,
+        aadharFrontFile: frontUrl,
+        aadharBackFile: backUrl,
+        page1Filled: true,
+      },
       { upsert: true, new: true }
     );
     console.timeEnd("MongoDB Update");
 
     console.timeEnd("Total Processing Time");
-
-    return new Response(JSON.stringify({ success: true, message: "Aadhaar uploaded successfully.", data: kycEntry }), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Aadhaar uploaded successfully.",
+        data: updatedKyc,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("Error uploading Aadhaar or updating DB:", error);
-    return new Response(JSON.stringify({ success: false, message: "Server error. Please try again later." }), {
-      status: 500,
-    });
+    console.error("Error in /api/kyc/aadhar:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Server error. Please try again later." }),
+      { status: 500 }
+    );
   }
+}
+
+/**
+ * Helper function to process (convert, resize) & upload a single image
+ */
+async function processAndUploadImage(fileBlob, type) {
+  console.time(`Convert ${type} to Buffer`);
+  let fileBuffer = Buffer.from(await fileBlob.arrayBuffer());
+  console.timeEnd(`Convert ${type} to Buffer`);
+
+  console.time(`Detect ${type} File Type`);
+  const fileType = await fileTypeFromBuffer(fileBuffer);
+  console.timeEnd(`Detect ${type} File Type`);
+  console.log(`Detected ${type} File Type:`, fileType?.mime);
+
+  // Only allow JPEG/PNG
+  const allowedMimes = ["image/jpeg", "image/jpg", "image/png"];
+  if (!fileType || !allowedMimes.includes(fileType.mime)) {
+    throw new Error(`Invalid file type for ${type}. Only JPEG and PNG are allowed.`);
+  }
+
+  // Convert to PNG if needed
+  if (fileType.mime !== "image/png") {
+    console.log(`Converting ${type} to PNG format...`);
+    fileBuffer = await toStandardPng(fileBuffer);
+  }
+
+  // Resize image
+  console.log(`Resizing ${type} to 800x800 max...`);
+  fileBuffer = await resizeImage(fileBuffer);
+
+  // Upload to Azure
+  console.time(`Azure Upload for ${type}`);
+  const uniqueName = `${uuidv4()}-${type}.png`;
+  const containerClient = getBlobContainerClient("images");
+  await containerClient.createIfNotExists({ access: "blob" });
+
+  const blockBlobClient = containerClient.getBlockBlobClient(uniqueName);
+  await blockBlobClient.uploadData(fileBuffer, {
+    blobHTTPHeaders: { blobContentType: "image/png" },
+  });
+
+  const azureFileUrl = blockBlobClient.url;
+  console.log(`${type} image uploaded to:`, azureFileUrl);
+  console.timeEnd(`Azure Upload for ${type}`);
+
+  return azureFileUrl;
 }

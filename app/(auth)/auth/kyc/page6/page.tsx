@@ -1,68 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-function RegisterComponent2() {
-  const [userData, setUserData] = useState({
-    name: "",
-    status: "Pending",
-    vcp: "Not Decided",
-    acp: "Not Decided",
-  });
-
-  const [showFullText, setShowFullText] = useState(false);
+function EndPage() {
   const router = useRouter();
+  const [showFullText, setShowFullText] = useState(false);
 
   const fullText =
-    "Congratulations! Your Interview is Completed - Welcome to the Sobhagya Family! Please Complete the Pending Documentation to Begin Your Journey as an Astrologer.";
+    "We have received your documents and they are currently under review. Our verification team is carefully assessing the details to ensure accuracy and compliance. This process typically takes 24 to 48 hours. We appreciate your patience and will notify you once the verification is complete.";
 
-  // Prevent the user from navigating back
-  useEffect(() => {
-    window.history.pushState(null, "", window.location.href);
-
-    const handleBackButton = () => {
-      window.history.pushState(null, "", window.location.href);
-    };
-
-    window.addEventListener("popstate", handleBackButton);
-
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-    };
-  }, []);
-
-  // Fetch astrologer details
-  useEffect(() => {
-    const fetchAstrologerDetails = async () => {
-      try {
-        const response = await fetch("/api/auth/register/fetchAstrologer", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          setUserData({
-            name: result.data.name || "Unknown",
-            status: result.data.interviewStatus,
-            vcp: result.data.videoPrice || "Not Decided",
-            acp: result.data.audioPrice || "Not Decided",
-          });
-        } else {
-          console.error("Failed to fetch astrologer details:", result.message);
-        }
-      } catch (error) {
-        console.error("Error fetching astrologer details:", error);
-      }
-    };
-
-    fetchAstrologerDetails();
-  }, []);
-
-  // Handle KYC step navigation
+  // Handle user sign out
   const handleSignOut = async () => {
     try {
       const response = await fetch("/api/auth/logout", {
@@ -71,16 +20,17 @@ function RegisterComponent2() {
         credentials: "include",
       });
 
-      const result = await response.json();
-      if (result.success) {
-        window.location.href = "/";
+      if (response.ok) {
+        router.push("/auth/login");
       } else {
-        alert("Sign-out failed. Please try again.");
+        alert("Failed to sign out. Please try again.");
       }
     } catch (error) {
       console.error("Error signing out:", error);
+      alert("Something went wrong. Please try again.");
     }
   };
+
   return (
     <div
       className="w-full m-auto min-h-screen flex items-center relative overflow-hidden flex-col md:flex-row"
@@ -105,13 +55,13 @@ function RegisterComponent2() {
 
         {/* Onboarding Text */}
         <p className="text-black text-2xl md:text-3xl font-inter font-bold my-4">
-          Onboarding in Progress...
+          KYC Verification in Progress...
         </p>
 
         {/* User Greeting */}
         <div className="flex items-center justify-start w-full">
           <p className="text-black text-xl font-inter font-bold">
-            Namaste {userData.name.split(" ")[0]}
+            Namaste
           </p>
           <div className="ml-2">
             <Image
@@ -124,34 +74,17 @@ function RegisterComponent2() {
           </div>
         </div>
 
-        {/* Status Box - Proper Alignment */}
-<div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto min-h-[150px] border border-gray-300 rounded-lg pt-6 pl-8 pr-8 mt-1 shadow-sm">
-  <div className="flex items-center justify-between mb-3">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Interview Status :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.status}
-    </span>
-  </div>
-  <div className="flex items-center justify-between mb-3">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Video Call Price :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.vcp}
-    </span>
-  </div>
-  <div className="flex items-center justify-between">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Audio Call Price :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.acp}
-    </span>
-  </div>
-</div>
-
+        {/* Status Box - KYC Documents Uploaded */}
+        <div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto border border-gray-300 rounded-lg pb-2 pt-6 pl-8 pr-8 mt-1 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-extrabold text-base md:text-xl text-[#252525]">
+              KYC Documents :
+            </span>
+            <span className="text-black font-medium text-base md:text-lg">
+              Uploaded
+            </span>
+          </div>
+        </div>
 
         {/* Information Text - Left aligned for mobile */}
         <div className="font-inter w-full md:w-[70%] my-4 text-sm md:text-base text-left">
@@ -172,14 +105,14 @@ function RegisterComponent2() {
           </p>
         </div>
 
-        {/* Button */}
+        {/* Sign Out Button */}
         <div className="flex justify-center md:justify-start w-full">
           <button
             type="button"
             onClick={handleSignOut}
             className="btn mx-auto text-white font-inter font-bold bg-[#FFCD66] my-5 px-20"
           >
-            Logout
+            Sign Out
           </button>
         </div>
       </div>
@@ -198,4 +131,4 @@ function RegisterComponent2() {
   );
 }
 
-export default RegisterComponent2;
+export default EndPage;
