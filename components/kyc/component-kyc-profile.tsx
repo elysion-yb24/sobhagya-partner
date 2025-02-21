@@ -142,7 +142,7 @@ export default function ProfileUpload() {
   };
 
   if (isPageLoading) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   return (

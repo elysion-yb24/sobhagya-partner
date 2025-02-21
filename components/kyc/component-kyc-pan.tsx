@@ -143,7 +143,7 @@ const Step2: React.FC = () => {
 
   // 5️⃣ If still fetching existing data
   if (isPageLoading) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   // 6️⃣ Render
