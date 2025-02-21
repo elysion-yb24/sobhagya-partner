@@ -44,17 +44,26 @@ const Step3Form: React.FC = () => {
     "Feng Shui", "Fortune Telling", "Face Reading", "Numerology", "Others"
   ];
 
-  // Pre-fill name and phone from localStorage (and set them as read-only)
+  // 1️⃣ Fetch name & phone from DB on mount
   useEffect(() => {
-    const userDetails = localStorage.getItem("userDetails");
-    if (userDetails) {
-      const { name, phone } = JSON.parse(userDetails);
-      setFormData((prev) => ({
-        ...prev,
-        name: name || "",
-        phone: phone || "",
-      }));
-    }
+    const fetchUserDetails = async () => {
+      try {
+        const res = await fetch("/api/auth/cover-register/user-details");
+        if (!res.ok) return; // or handle 4xx/5xx
+
+        const data = await res.json();
+        // Update form with user’s name & phone from DB
+        setFormData((prev) => ({
+          ...prev,
+          name: data.name || "",
+          phone: data.phone || "",
+        }));
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+      }
+    };
+
+    fetchUserDetails();
   }, []);
 
   // Handle Input Change for yoe (years of experience)
@@ -134,7 +143,7 @@ const Step3Form: React.FC = () => {
   return (
     <div className="px-4 sm:px-8 max-w-[700px] mx-auto">
       <div className="text-center mb-5">
-        <p className="text-center text-[#9C9AA5] text-sm font-inter -mt-2">3 / 3</p>
+        <p className="text-center text-[#9C9AA5] text-sm font-inter -mt-3">3 / 3</p>
         <h1 className="text-2xl font-bold text-black font-inter">
           We are Happy to Onboard You
         </h1>
@@ -146,7 +155,7 @@ const Step3Form: React.FC = () => {
 
       <form onSubmit={handleSubmit}>
         {/* Name (read-only) */}
-        <div className="mb-4">
+        <div className="mb-2">
           <label htmlFor="name" className="font-inter text-black">
             Name <span className="text-red-500">*</span>
           </label>
@@ -156,7 +165,7 @@ const Step3Form: React.FC = () => {
             type="text"
             placeholder="Enter your name"
             className={`form-input w-full rounded-md px-4 py-2 border ${
-              errors.name ? "border-red-500" : "border-[#FFCD66]"
+              errors.name ? "border-red-500" : "border-[#fec758]"
             }`}
             value={formData.name}
             readOnly
@@ -167,7 +176,7 @@ const Step3Form: React.FC = () => {
         </div>
 
         {/* Phone (read-only) */}
-        <div className="mb-4">
+        <div className="mb-2">
           <label htmlFor="phone" className="font-inter text-black">
             Phone Number <span className="text-red-500">*</span>
           </label>
@@ -177,7 +186,7 @@ const Step3Form: React.FC = () => {
             type="text"
             placeholder="Enter your phone number"
             className={`form-input w-full rounded-md px-4 py-2 border ${
-              errors.phone ? "border-red-500" : "border-[#FFCD66]"
+              errors.phone ? "border-red-500" : "border-[#fec758]"
             }`}
             value={formData.phone}
             readOnly
@@ -188,7 +197,7 @@ const Step3Form: React.FC = () => {
         </div>
 
         {/* Years of Experience */}
-        <div className="mb-4">
+        <div className="mb-2">
           <label htmlFor="yoe" className="font-inter text-black">
             Years of Experience <span className="text-red-500">*</span>
           </label>
@@ -198,7 +207,7 @@ const Step3Form: React.FC = () => {
             type="number"
             placeholder="Enter Years of Experience"
             className={`form-input w-full rounded-md px-4 py-2 border ${
-              errors.yoe ? "border-red-500" : "border-[#FFCD66]"
+              errors.yoe ? "border-red-500" : "border-[#fec758]"
             }`}
             value={formData.yoe}
             onChange={handleChange}
@@ -212,7 +221,7 @@ const Step3Form: React.FC = () => {
         </div>
 
         {/* Languages */}
-        <div className="mb-4">
+        <div className="mb-2">
           <label className="font-inter text-black">
             Languages <span className="text-red-500">*</span>
           </label>
@@ -222,7 +231,7 @@ const Step3Form: React.FC = () => {
               type="text"
               placeholder="Select a language"
               className={`form-input w-full rounded-md px-4 py-2 border ${
-                errors.languages ? "border-red-500" : "border-[#FFCD66]"
+                errors.languages ? "border-red-500" : "border-[#fec758]"
               }`}
               value=""
               onClick={toggleLanguagesList}
@@ -231,7 +240,7 @@ const Step3Form: React.FC = () => {
             {/* Dropdown list */}
             {showLanguagesList && (
               <ul
-                className="absolute left-0 w-full mt-1 bg-white border border-[#FFCD66] rounded-md shadow z-10 max-h-56 overflow-auto"
+                className="absolute left-0 w-full mt-1 bg-white border border-[#fec758] rounded-md shadow z-10 max-h-56 overflow-auto"
                 onMouseLeave={() => setShowLanguagesList(false)}
               >
                 {allLanguages.map((lang) => (
@@ -251,12 +260,12 @@ const Step3Form: React.FC = () => {
           </div>
 
           {/* Display selected languages */}
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 mt-1">
             {formData.languages.map((lang) => (
               <span
                 key={lang}
                 onClick={() => handleRemoveEntry("languages", lang)}
-                className="bg-[#FFCD66] text-white font-bold px-3 py-1 rounded-full cursor-pointer"
+                className="bg-[#fec758] text-white font-bold px-3 py-1 rounded-full cursor-pointer"
               >
                 {lang} ×
               </span>
@@ -280,7 +289,7 @@ const Step3Form: React.FC = () => {
               type="text"
               placeholder="Select a specialization"
               className={`form-input w-full rounded-md px-4 py-2 border ${
-                errors.astrologerTypes ? "border-red-500" : "border-[#FFCD66]"
+                errors.astrologerTypes ? "border-red-500" : "border-[#fec758]"
               }`}
               value=""
               onClick={toggleAstroTypesList}
@@ -289,7 +298,7 @@ const Step3Form: React.FC = () => {
             {/* Dropdown list */}
             {showAstroTypesList && (
               <ul
-                className="absolute left-0 w-full mt-1 bg-white border border-[#FFCD66] rounded-md shadow z-10 max-h-56 overflow-auto"
+                className="absolute left-0 w-full mt-1 bg-white border border-[#fec758] rounded-md shadow z-10 max-h-56 overflow-auto"
                 onMouseLeave={() => setShowAstroTypesList(false)}
               >
                 {allAstrologyTypes.map((type) => (
@@ -309,12 +318,12 @@ const Step3Form: React.FC = () => {
           </div>
 
           {/* Display selected astrologer types */}
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 mt-1">
             {formData.astrologerTypes.map((type) => (
               <span
                 key={type}
                 onClick={() => handleRemoveEntry("astrologerTypes", type)}
-                className="bg-[#FFCD66] text-white px-3 py-1 font-bold rounded-full cursor-pointer"
+                className="bg-[#fec758] text-white px-3 py-1 font-bold rounded-full cursor-pointer"
               >
                 {type} ×
               </span>
@@ -330,7 +339,7 @@ const Step3Form: React.FC = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          className="btn mx-auto w-full bg-[#FFCD66] text-white font-inter py-2 rounded-md text-lg font-semibold mt-6"
+          className="btn mx-auto w-full bg-[#fec758] text-white font-inter py-2 rounded-md text-lg font-semibold mt-3"
         >
           Submit
         </button>

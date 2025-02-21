@@ -200,7 +200,7 @@ const Step2Form: React.FC = () => {
             ref={(el) => (inputRefs.current[index] = el)}
             type="text"
             maxLength={1}
-            className="w-12 h-12 text-center text-xl font-bold bg-gray-100 border border-[#FFCD66] rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-300"
+            className="w-12 h-12 text-center text-xl font-bold bg-gray-100 border border-[#fec758] rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-300"
             value={otp[index]}
             onChange={(e) => handleChange(index, e.target.value)}
             onKeyDown={(e) => handleKeyDown(index, e)}
@@ -219,7 +219,7 @@ const Step2Form: React.FC = () => {
         )}
       </div>
 
-      <button type="submit" className="btn mx-auto w-[60%] text-white font-inter font-bold bg-[#FFCD66] my-5" disabled={loading}>
+      <button type="submit" className="btn mx-auto w-[60%] text-white font-inter font-bold bg-[#fec758] my-5" disabled={loading}>
         {loading ? "Verifying..." : "Continue"}
       </button>
     </form>

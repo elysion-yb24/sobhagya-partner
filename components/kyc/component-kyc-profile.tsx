@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -14,6 +14,7 @@ const ProfileUpload: React.FC = () => {
   const [displayPreview, setDisplayPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [cameraActive, setCameraActive] = useState<boolean>(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   // SweetAlert Instance
   const Toast = Swal.mixin({
@@ -24,9 +25,45 @@ const ProfileUpload: React.FC = () => {
     timerProgressBar: true,
   });
 
-  // Open Camera
+  // === 1️⃣ Fetch Existing Profile Data on Page Load ===
+  useEffect(() => {
+    const fetchProfileDetails = async () => {
+      try {
+        const res = await fetch("/api/kyc/fetch-profile-details");
+
+        if (!res.ok) {
+          setIsPageLoading(false);
+          return;
+        }
+
+        const data = await res.json();
+        if (data.displayName) setDisplayName(data.displayName);
+        if (data.profilePicUrl) setDisplayPreview(data.profilePicUrl);
+      } catch (error) {
+        console.error("Error fetching profile details:", error);
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+
+    fetchProfileDetails();
+  }, []);
+
+  // === 2️⃣ Handle Back Button to Redirect to Page 2 ===
+  useEffect(() => {
+    const handleBack = () => {
+      router.replace("/auth/kyc/page2");
+    };
+
+    window.addEventListener("popstate", handleBack);
+    return () => {
+      window.removeEventListener("popstate", handleBack);
+    };
+  }, [router]);
+
+  // === 3️⃣ Open Camera ===
   const handleOpenCamera = () => {
-    setDisplayPreview(null); // Remove previous image preview
+    setDisplayPreview(null);
     setDisplayPic(null);
     setCameraActive(true);
 
@@ -36,18 +73,16 @@ const ProfileUpload: React.FC = () => {
     });
   };
 
-  // Capture Photo
+  // === 4️⃣ Capture Photo ===
   const handleCapturePhoto = () => {
     if (!webcamRef.current) return;
 
     const imageSrc = webcamRef.current.getScreenshot();
     if (!imageSrc) return;
 
-    // Move preview image to the left and close camera
     setDisplayPreview(imageSrc);
     setCameraActive(false);
 
-    // Convert Base64 to Blob and store as File
     fetch(imageSrc)
       .then((res) => res.blob())
       .then((blob) => {
@@ -68,7 +103,7 @@ const ProfileUpload: React.FC = () => {
       });
   };
 
-  // Remove Profile Picture
+  // === 5️⃣ Remove Profile Picture ===
   const handleEdit = () => {
     setDisplayPic(null);
     setDisplayPreview(null);
@@ -80,7 +115,7 @@ const ProfileUpload: React.FC = () => {
     });
   };
 
-  // Submit Handler
+  // === 6️⃣ Submit Handler ===
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -92,7 +127,7 @@ const ProfileUpload: React.FC = () => {
       return;
     }
 
-    if (!displayPic) {
+    if (!displayPic && !displayPreview) {
       Toast.fire({
         icon: "error",
         title: "Please capture a profile picture.",
@@ -100,10 +135,10 @@ const ProfileUpload: React.FC = () => {
       return;
     }
 
-    // Build FormData for the request
+    // Build FormData
     const formData = new FormData();
     formData.append("displayName", displayName.trim());
-    formData.append("profilePic", displayPic);
+    if (displayPic) formData.append("profilePic", displayPic);
 
     setLoading(true);
     try {
@@ -115,10 +150,6 @@ const ProfileUpload: React.FC = () => {
       const result = await response.json();
 
       if (response.ok) {
-        setDisplayName("");
-        setDisplayPic(null);
-        setDisplayPreview(null);
-
         Toast.fire({
           icon: "success",
           title: "Profile uploaded successfully.",
@@ -141,6 +172,8 @@ const ProfileUpload: React.FC = () => {
     }
   };
 
+  if (isPageLoading) return <div></div>;
+
   return (
     <div className="flex flex-col items-center mb-8">
       <p className="text-center text-[#9C9AA5] text-sm font-inter mb-2">3 / 4</p>
@@ -152,7 +185,7 @@ const ProfileUpload: React.FC = () => {
       <div className="flex gap-4 mb-4 w-[320px] justify-start">
         {/* Show captured image preview on the left */}
         {displayPreview && (
-          <div className="w-[80px] h-[80px] border-2 border-[#FFCD66] overflow-hidden">
+          <div className="w-[80px] h-[80px] border-2 border-[#fec758] overflow-hidden">
             <Image
               src={displayPreview}
               alt="Profile Preview"
@@ -166,7 +199,7 @@ const ProfileUpload: React.FC = () => {
 
         {/* Show live camera preview in the center when active */}
         {cameraActive && (
-          <div className="w-[150px] h-[150px] border-2 border-[#FFCD66] overflow-hidden flex justify-center items-center">
+          <div className="w-[150px] h-[150px] border-2 border-[#fec758] overflow-hidden flex justify-center items-center">
             <Webcam
               ref={webcamRef}
               screenshotFormat="image/jpeg"
@@ -180,7 +213,7 @@ const ProfileUpload: React.FC = () => {
       <button
         type="button"
         onClick={cameraActive ? handleCapturePhoto : handleOpenCamera}
-        className="w-[320px] py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg"
+        className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
       >
         {cameraActive ? "Click Photo" : displayPreview ? "Re-upload Photo" : "Upload Photo"}
       </button>
@@ -195,7 +228,7 @@ const ProfileUpload: React.FC = () => {
             name="displayName"
             type="text"
             placeholder="Display Name"
-            className="placeholder:text-gray-400 border rounded-lg px-3 py-2 border-[#FFCD66]"
+            className="placeholder:text-gray-400 border rounded-lg px-3 py-2 border-[#fec758]"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
           />
@@ -203,7 +236,7 @@ const ProfileUpload: React.FC = () => {
 
         <button
           type="submit"
-          className="w-[320px] mt-6 py-2 bg-[#FFCD66] text-white font-bold font-inter rounded-lg"
+          className="w-[320px] mt-6 py-2 bg-[#fec758] text-white font-bold font-inter rounded-lg"
           disabled={loading}
         >
           {loading ? "Submitting..." : "Continue"}

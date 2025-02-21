@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -11,11 +11,14 @@ const Step2: React.FC = () => {
   const [panNumber, setPanNumber] = useState<string>("");
   const [panFile, setPanFile] = useState<File | null>(null);
   const [panPreview, setPanPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+
+  // Error handling
   const [error, setError] = useState<{ pan: boolean; file: boolean }>({
     pan: false,
     file: false,
   });
-  const [loading, setLoading] = useState<boolean>(false);
 
   // SweetAlert Instance
   const Toast = Swal.mixin({
@@ -30,7 +33,46 @@ const Step2: React.FC = () => {
   const validatePan = (panNumber: string): boolean =>
     /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber);
 
-  // Handle PAN File Upload
+  // === 1️⃣ Fetch Existing PAN Details on Page Load ===
+  useEffect(() => {
+    const fetchPanDetails = async () => {
+      try {
+        const res = await fetch("/api/kyc/fetch-pan-details");
+
+        if (!res.ok) {
+          setIsPageLoading(false);
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.panNumber) {
+          setPanNumber(data.panNumber);
+          if (data.panFileUrl) setPanPreview(data.panFileUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching PAN details:", error);
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+
+    fetchPanDetails();
+  }, []);
+
+  // === 2️⃣ Handle Back Button to Redirect to Page 1 ===
+  useEffect(() => {
+    const handleBack = () => {
+      router.replace("/auth/kyc/page1");
+    };
+
+    window.addEventListener("popstate", handleBack);
+    return () => {
+      window.removeEventListener("popstate", handleBack);
+    };
+  }, [router]);
+
+  // === 3️⃣ Handle PAN File Upload ===
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -54,7 +96,7 @@ const Step2: React.FC = () => {
     });
   };
 
-  // Submit Handler
+  // === 4️⃣ Submit Handler ===
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -67,7 +109,7 @@ const Step2: React.FC = () => {
       return;
     }
 
-    if (!panFile) {
+    if (!panFile && !panPreview) {
       setError((prev) => ({ ...prev, file: true }));
       Toast.fire({
         icon: "error",
@@ -78,7 +120,7 @@ const Step2: React.FC = () => {
 
     const formData = new FormData();
     formData.append("panNumber", panNumber);
-    formData.append("panFile", panFile);
+    if (panFile) formData.append("panFile", panFile);
 
     setLoading(true);
     try {
@@ -109,7 +151,7 @@ const Step2: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error("Error submitting KYC Step 2:", error);
+      console.error("Error submitting PAN details:", error);
       Toast.fire({
         icon: "error",
         title: "An error occurred while submitting PAN details.",
@@ -119,19 +161,18 @@ const Step2: React.FC = () => {
     }
   };
 
+  if (isPageLoading) return <div></div>;
+
   return (
     <div className="flex flex-col items-center mb-8">
-      <p className="text-center text-[#9C9AA5] text-sm font-inter mb-2">
-        2 / 4
-      </p>
+      <p className="text-center text-[#9C9AA5] text-sm font-inter mb-2">2 / 4</p>
       <h1 className="text-2xl text-black font-bold font-inter text-center mb-4">
         Upload Your PAN Card
       </h1>
 
-      {/* PREVIEW Section - Matches Aadhaar Upload */}
       {panPreview && (
         <div className="flex gap-4 mb-4 w-[320px] justify-start">
-          <div className="w-[80px] h-[80px] border-2 border-[#FFCD66] overflow-hidden">
+          <div className="w-[80px] h-[80px] border-2 border-[#fec758] overflow-hidden">
             <Image
               src={panPreview}
               alt="PAN Preview"
@@ -144,11 +185,10 @@ const Step2: React.FC = () => {
         </div>
       )}
 
-      {/* Upload/Re-upload Button */}
       <button
         type="button"
         onClick={() => fileInputRef.current?.click()}
-        className="w-[320px] py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg"
+        className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
       >
         {panPreview ? "Re-Upload PAN" : "Upload PAN"}
       </button>
@@ -171,7 +211,7 @@ const Step2: React.FC = () => {
             type="text"
             placeholder="PAN Number"
             className={`placeholder:text-gray-400 border rounded-lg px-3 py-2 ${
-              error.pan ? "border-red-500" : "border-[#FFCD66]"
+              error.pan ? "border-red-500" : "border-[#fec758]"
             }`}
             value={panNumber}
             onChange={(e) => {
@@ -179,16 +219,11 @@ const Step2: React.FC = () => {
               setPanNumber(e.target.value);
             }}
           />
-          {error.pan && (
-            <p className="text-red-500 text-sm mt-1">
-              PAN must follow the format (ABCDE1234F).
-            </p>
-          )}
         </div>
 
         <button
           type="submit"
-          className="w-[320px] mt-6 py-2 bg-[#FFCD66] text-white font-bold font-inter rounded-lg"
+          className="w-[320px] mt-6 py-2 bg-[#fec758] text-white font-bold font-inter rounded-lg"
           disabled={loading}
         >
           {loading ? "Submitting..." : "Continue"}

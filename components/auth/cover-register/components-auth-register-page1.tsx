@@ -130,7 +130,7 @@ const Step1Form = () => {
           type="text"
           placeholder="Enter Name"
           className={`form-input placeholder:text-gray-400 ${
-            errors.name ? "border-red-500" : "border-[#FFCD66]"
+            errors.name ? "border-red-500" : "border-[#fec758]"
           }`}
           value={formData.name}
           onChange={handleChange}
@@ -156,7 +156,7 @@ const Step1Form = () => {
           type="tel"
           placeholder="Enter Your Phone Number"
           className={`form-input placeholder:text-gray-400 ${
-            errors.phone ? "border-red-500" : "border-[#FFCD66]"
+            errors.phone ? "border-red-500" : "border-[#fec758]"
           }`}
           value={formData.phone}
           onChange={handleChange}
@@ -169,7 +169,7 @@ const Step1Form = () => {
       {/* Continue Button */}
       <button
         type="submit"
-        className="btn mx-auto w-[60%] text-white font-inter font-bold bg-[#FFCD66] my-10"
+        className="btn mx-auto w-[60%] text-white font-inter font-bold bg-[#fec758] my-10"
         disabled={loading}
       >
         {loading ? "Sending..." : "Continue"}

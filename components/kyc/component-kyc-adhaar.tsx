@@ -8,17 +8,30 @@ import Swal from "sweetalert2";
 export default function Step1() {
   const router = useRouter();
 
+  useEffect(() => {
+    const handleBack = () => {
+      router.replace("/auth/register"); // Redirect when back button is pressed
+    };
+  
+    window.addEventListener("popstate", handleBack);
+    return () => {
+      window.removeEventListener("popstate", handleBack);
+    };
+  }, [router]);
+  
+
   // Aadhaar Number
   const [aadhaar, setAadhaar] = useState("");
-  // File references
+
+  // Refs for file inputs
   const fileInputRefFront = useRef<HTMLInputElement>(null);
   const fileInputRefBack = useRef<HTMLInputElement>(null);
 
-  // State for front file & preview
+  // Front file + preview
   const [aadhaarFrontFile, setAadhaarFrontFile] = useState<File | null>(null);
   const [aadhaarFrontPreview, setAadhaarFrontPreview] = useState<string | null>(null);
 
-  // State for back file & preview
+  // Back file + preview
   const [aadhaarBackFile, setAadhaarBackFile] = useState<File | null>(null);
   const [aadhaarBackPreview, setAadhaarBackPreview] = useState<string | null>(null);
 
@@ -29,10 +42,11 @@ export default function Step1() {
     backFile: false,
   });
 
-  // Loading / Submitting state
-  const [loading, setLoading] = useState(false);
+  // Loading states
+  const [isPageLoading, setIsPageLoading] = useState(true);  // For initial fetch
+  const [isSubmitting, setIsSubmitting] = useState(false);   // For form submission
 
-  // SweetAlert instance
+  // SweetAlert config
   const Toast = Swal.mixin({
     toast: true,
     position: "top",
@@ -41,15 +55,43 @@ export default function Step1() {
     timerProgressBar: true,
   });
 
-  // Validate 12-digit Aadhaar
-  const validateAadhaar = (num: string): boolean => /^\d{12}$/.test(num);
+  // === Utility: Validate Aadhaar ===
+  const validateAadhaar = (num: string) => /^\d{12}$/.test(num);
 
-  // ========= FRONT Upload Handlers =========
+  // === 1. On Page Load, Fetch Existing Aadhaar Data ===
+  useEffect(() => {
+    const fetchAadhaarDetails = async () => {
+      try {
+        const res = await fetch("/api/kyc/fetch-aadhar-details");
+        // If user not logged in or no data found, you may get a 404 or some error
+        if (!res.ok) {
+          setIsPageLoading(false);
+          return;
+        }
+        const data = await res.json();
+
+        // If we found Aadhaar data
+        if (data.aadhaarNumber) {
+          setAadhaar(data.aadhaarNumber);
+          if (data.aadhaarFrontUrl) setAadhaarFrontPreview(data.aadhaarFrontUrl);
+          if (data.aadhaarBackUrl) setAadhaarBackPreview(data.aadhaarBackUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching Aadhaar details:", error);
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+
+    fetchAadhaarDetails();
+  }, []);
+
+  // === 2. Handlers for Uploading Files ===
+  // Front
   const handleFileUploadFront = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Accept only image/jpeg, image/png
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
     if (!allowedTypes.includes(file.type)) {
       setError((prev) => ({ ...prev, frontFile: true }));
@@ -62,7 +104,10 @@ export default function Step1() {
 
     setAadhaarFrontFile(file);
     setError((prev) => ({ ...prev, frontFile: false }));
-    setAadhaarFrontPreview(URL.createObjectURL(file));
+
+    // Create a local preview
+    const objectURL = URL.createObjectURL(file);
+    setAadhaarFrontPreview(objectURL);
 
     Toast.fire({
       icon: "success",
@@ -70,21 +115,7 @@ export default function Step1() {
     });
   };
 
-  const handleReuploadFront = () => {
-    if (fileInputRefFront.current) {
-      fileInputRefFront.current.value = "";
-    }
-    setAadhaarFrontFile(null);
-    setAadhaarFrontPreview(null);
-    setError((prev) => ({ ...prev, frontFile: false }));
-
-    Toast.fire({
-      icon: "info",
-      title: "You can now upload a new Aadhaar Front image.",
-    });
-  };
-
-  // ========= BACK Upload Handlers =========
+  // Back
   const handleFileUploadBack = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -101,7 +132,9 @@ export default function Step1() {
 
     setAadhaarBackFile(file);
     setError((prev) => ({ ...prev, backFile: false }));
-    setAadhaarBackPreview(URL.createObjectURL(file));
+
+    const objectURL = URL.createObjectURL(file);
+    setAadhaarBackPreview(objectURL);
 
     Toast.fire({
       icon: "success",
@@ -109,21 +142,7 @@ export default function Step1() {
     });
   };
 
-  const handleReuploadBack = () => {
-    if (fileInputRefBack.current) {
-      fileInputRefBack.current.value = "";
-    }
-    setAadhaarBackFile(null);
-    setAadhaarBackPreview(null);
-    setError((prev) => ({ ...prev, backFile: false }));
-
-    Toast.fire({
-      icon: "info",
-      title: "You can now upload a new Aadhaar Back image.",
-    });
-  };
-
-  // ========= SUBMIT Handler =========
+  // === 3. Form Submission ===
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -132,13 +151,13 @@ export default function Step1() {
       setError((prev) => ({ ...prev, aadhaar: true }));
       Toast.fire({
         icon: "error",
-        title: "Invalid Aadhaar number. Must be a 12-digit number.",
+        title: "Invalid Aadhaar number. Must be 12 digits.",
       });
       return;
     }
 
-    // Validate both front & back
-    if (!aadhaarFrontFile) {
+    // Validate files
+    if (!aadhaarFrontFile && !aadhaarFrontPreview) {
       setError((prev) => ({ ...prev, frontFile: true }));
       Toast.fire({
         icon: "error",
@@ -146,7 +165,7 @@ export default function Step1() {
       });
       return;
     }
-    if (!aadhaarBackFile) {
+    if (!aadhaarBackFile && !aadhaarBackPreview) {
       setError((prev) => ({ ...prev, backFile: true }));
       Toast.fire({
         icon: "error",
@@ -155,36 +174,28 @@ export default function Step1() {
       return;
     }
 
-    // Build FormData
+    // Build FormData for submission
     const formData = new FormData();
     formData.append("aadharNumber", aadhaar);
-    formData.append("aadharFrontFile", aadhaarFrontFile);
-    formData.append("aadharBackFile", aadhaarBackFile);
 
-    setLoading(true);
+    // Only append the actual files if  re-uploaded them
+    if (aadhaarFrontFile) formData.append("aadharFrontFile", aadhaarFrontFile);
+    if (aadhaarBackFile) formData.append("aadharBackFile", aadhaarBackFile);
+
+    setIsSubmitting(true);
     try {
       const response = await fetch("/api/kyc/aadhar", {
         method: "POST",
         body: formData,
       });
-
       const result = await response.json();
+
       if (response.ok) {
-        // Reset fields
-        setAadhaar("");
-        setAadhaarFrontFile(null);
-        setAadhaarBackFile(null);
-        setAadhaarFrontPreview(null);
-        setAadhaarBackPreview(null);
-
-        if (fileInputRefFront.current) fileInputRefFront.current.value = "";
-        if (fileInputRefBack.current) fileInputRefBack.current.value = "";
-
         Toast.fire({
           icon: "success",
-          title: "KYC Step 1 completed successfully.",
+          title: "KYC Aadhaar updated successfully.",
         });
-        // Example: move to next page
+        // Redirect to next step
         router.push("/auth/kyc/page2");
       } else {
         Toast.fire({
@@ -193,61 +204,65 @@ export default function Step1() {
         });
       }
     } catch (err) {
-      console.error("Error submitting KYC Step 1:", err);
+      console.error("Error submitting Aadhaar details:", err);
       Toast.fire({
         icon: "error",
         title: "An error occurred while submitting Aadhaar details.",
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  // ========= RENDER =========
+  // === 4. If Still Fetching Existing Data, Show a Loader ===
+  if (isPageLoading) {
+    return <div></div>;
+  }
+
+  // === 5. Render the Page ===
   return (
     <div className="flex flex-col items-center mb-8">
       <p className="text-center text-[#9C9AA5] text-sm font-inter mb-2">1 / 4</p>
       <h1 className="text-2xl text-black font-bold font-inter text-center mb-4">
-        Upload Your Aadhar Card
+        Upload Your Aadhaar Card
       </h1>
 
-      {/* PREVIEW Section - Only shows if either front/back is uploaded */}
-{(aadhaarFrontPreview || aadhaarBackPreview) && (
-  <div className="flex gap-4 mb-4 w-[320px] justify-start">
-    {aadhaarFrontPreview && (
-      <div className="w-[80px] h-[80px] border-2 border-[#FFCD66] overflow-hidden">
-        <Image
-          src={aadhaarFrontPreview}
-          alt="Aadhar Front Preview"
-          width={80}
-          height={80}
-          className="object-cover w-full h-full"
-          priority
-        />
-      </div>
-    )}
+      {/* Preview if front/back available */}
+      {(aadhaarFrontPreview || aadhaarBackPreview) && (
+        <div className="flex gap-4 mb-4 w-[320px] justify-start">
+          {aadhaarFrontPreview && (
+            <div className="w-[80px] h-[80px] border-2 border-[#fec758] overflow-hidden">
+              <Image
+                src={aadhaarFrontPreview}
+                alt="Aadhaar Front Preview"
+                width={80}
+                height={80}
+                className="object-cover w-full h-full"
+                priority
+              />
+            </div>
+          )}
+          {aadhaarBackPreview && (
+            <div className="w-[80px] h-[80px] border-2 border-[#fec758] overflow-hidden">
+              <Image
+                src={aadhaarBackPreview}
+                alt="Aadhaar Back Preview"
+                width={80}
+                height={80}
+                className="object-cover w-full h-full"
+                priority
+              />
+            </div>
+          )}
+        </div>
+      )}
 
-    {aadhaarBackPreview && (
-      <div className="w-[80px] h-[80px] border-2 border-[#FFCD66] overflow-hidden">
-        <Image
-          src={aadhaarBackPreview}
-          alt="Aadhar Back Preview"
-          width={80}
-          height={80}
-          className="object-cover w-full h-full"
-          priority
-        />
-      </div>
-    )}
-  </div>
-)}
-
+      {/* Buttons for uploading front/back */}
       <div className="flex flex-col items-center space-y-3">
-        {/* FRONT Button */}
         <button
           type="button"
           onClick={() => fileInputRefFront.current?.click()}
-          className="w-[320px] py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg"
+          className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
         >
           {aadhaarFrontPreview ? "Re-upload Aadhaar Front" : "Upload Aadhaar Front"}
         </button>
@@ -259,11 +274,10 @@ export default function Step1() {
           onChange={handleFileUploadFront}
         />
 
-        {/* BACK Button */}
         <button
           type="button"
           onClick={() => fileInputRefBack.current?.click()}
-          className="w-[320px] py-2 px-3 bg-white border border-[#FFCD66] text-black font-inter rounded-lg"
+          className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
         >
           {aadhaarBackPreview ? "Re-upload Aadhaar Back" : "Upload Aadhaar Back"}
         </button>
@@ -276,10 +290,11 @@ export default function Step1() {
         />
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col items-center mt-6">
+      {/* Aadhaar Number & Submit */}
+      <form onSubmit={handleSubmit} className="flex flex-col items-center mt-6 w-full">
         <div className="flex flex-col w-[320px]">
           <label htmlFor="aadhaar" className="font-inter mb-1">
-            Enter Aadhar Number <span className="text-red-500">*</span>
+            Enter Aadhaar Number <span className="text-red-500">*</span>
           </label>
           <input
             id="aadhaar"
@@ -287,7 +302,7 @@ export default function Step1() {
             type="text"
             placeholder="Aadhaar Number"
             className={`placeholder:text-gray-400 border rounded-lg px-3 py-2 ${
-              error.aadhaar ? "border-red-500" : "border-[#FFCD66]"
+              error.aadhaar ? "border-red-500" : "border-[#fec758]"
             }`}
             value={aadhaar}
             onChange={(e) => {
@@ -304,10 +319,10 @@ export default function Step1() {
 
         <button
           type="submit"
-          className="w-[320px] mt-6 py-2 bg-[#FFCD66] text-white font-bold font-inter rounded-lg"
-          disabled={loading}
+          className="w-[320px] mt-6 py-2 bg-[#fec758] text-white font-bold font-inter rounded-lg"
+          disabled={isSubmitting}
         >
-          {loading ? "Submitting..." : "Continue"}
+          {isSubmitting ? "Submitting..." : "Continue"}
         </button>
       </form>
     </div>

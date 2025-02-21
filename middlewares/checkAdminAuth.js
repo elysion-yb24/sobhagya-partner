@@ -6,6 +6,7 @@ export default function checkAdminAuth(handler) {
   return async (req, res) => {
     try {
       // 1) Connect to DB
+      console.log("Test2")
       await dbConnect();
 
       // 2) Get the token from the Authorization header or cookies

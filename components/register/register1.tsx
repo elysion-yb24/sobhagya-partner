@@ -179,7 +179,7 @@ function RegisterComponent1() {
           <button
             type="button"
             onClick={handleDoKyc}
-            className="btn mx-auto text-white font-inter font-bold bg-[#FFCD66] my-5 px-20"
+            className="btn mx-auto text-white font-inter font-bold bg-[#fec758] my-5 px-20"
           >
             DO KYC
           </button>

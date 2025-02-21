@@ -32,6 +32,17 @@ const AgreementComponent: React.FC = () => {
   }, []);
 
   useEffect(() => {
+      const handleBack = () => {
+        router.replace("/auth/kyc/page4");
+      };
+  
+      window.addEventListener("popstate", handleBack);
+      return () => {
+        window.removeEventListener("popstate", handleBack);
+      };
+    }, [router]);
+
+  useEffect(() => {
     const fetchAstrologerDetails = async () => {
       try {
         const response = await fetch("/api/kyc/agreement", {
@@ -204,8 +215,8 @@ const AgreementComponent: React.FC = () => {
         </div>
 
         <div id="action-buttons" className="flex justify-between mt-6">
-          <button onClick={downloadPDF} className="btn w-[48%] bg-[#FFCD66] text-white font-bold">Download Agreement</button>
-          <button onClick={handleContinue} className="btn w-[48%] bg-[#FFCD66] text-white font-bold">Continue</button>
+          <button onClick={downloadPDF} className="btn w-[48%] bg-[#fec758] text-white font-bold">Download Agreement</button>
+          <button onClick={handleContinue} className="btn w-[48%] bg-[#fec758] text-white font-bold">Continue</button>
         </div>
       </div>
     </div>

@@ -73,28 +73,24 @@ export async function POST(req) {
       );
     }
 
-    // 6) Extract both front and back files
+    // 6) Extract files (they might be missing if not re-uploaded)
     const aadharFrontFile = formData.get("aadharFrontFile");
     const aadharBackFile = formData.get("aadharBackFile");
 
-    if (!aadharFrontFile || !(aadharFrontFile instanceof Blob)) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Aadhaar front file is required." }),
-        { status: 400 }
-      );
+    // 7) Fetch any existing KYC entry so we can reuse file URLs if needed
+    let existingKyc = await Kyc.findOne({ astrologerId });
+    let frontUrl = existingKyc?.aadharFrontFile;
+    let backUrl = existingKyc?.aadharBackFile;
+
+    // Process and upload new files if they are provided
+    if (aadharFrontFile && aadharFrontFile instanceof Blob) {
+      frontUrl = await processAndUploadImage(aadharFrontFile, "aadharFrontFile");
     }
-    if (!aadharBackFile || !(aadharBackFile instanceof Blob)) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Aadhaar back file is required." }),
-        { status: 400 }
-      );
+    if (aadharBackFile && aadharBackFile instanceof Blob) {
+      backUrl = await processAndUploadImage(aadharBackFile, "aadharBackFile");
     }
 
-    // 7) Process each file: front + back
-    const frontUrl = await processAndUploadImage(aadharFrontFile, "aadharFrontFile");
-    const backUrl = await processAndUploadImage(aadharBackFile, "aadharBackFile");
-
-    // 8) Update or create Kyc entry
+    // 8) Update or create the KYC entry
     console.time("MongoDB Update");
     const updatedKyc = await Kyc.findOneAndUpdate(
       { astrologerId },
