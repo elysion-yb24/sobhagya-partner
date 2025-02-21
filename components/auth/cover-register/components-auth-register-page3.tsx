@@ -260,7 +260,7 @@ const Step3Form: React.FC = () => {
           </div>
 
           {/* Display selected languages */}
-          <div className="flex flex-wrap gap-2 mt-1">
+          <div className="flex flex-wrap gap-2 mt-2">
             {formData.languages.map((lang) => (
               <span
                 key={lang}
@@ -318,7 +318,7 @@ const Step3Form: React.FC = () => {
           </div>
 
           {/* Display selected astrologer types */}
-          <div className="flex flex-wrap gap-2 mt-1">
+          <div className="flex flex-wrap gap-2 mt-2">
             {formData.astrologerTypes.map((type) => (
               <span
                 key={type}

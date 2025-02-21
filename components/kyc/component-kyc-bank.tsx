@@ -69,6 +69,17 @@ const Step4: React.FC = () => {
     fetchBankDetails();
   }, []);
 
+  useEffect(() => {
+        const handleBack = () => {
+          router.replace("/auth/kyc/page3");
+        };
+    
+        window.addEventListener("popstate", handleBack);
+        return () => {
+          window.removeEventListener("popstate", handleBack);
+        };
+      }, [router]);
+
   // === 2️⃣ Handle File Upload ===
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

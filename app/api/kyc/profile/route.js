@@ -1,142 +1,152 @@
 import Kyc from "@/models/kyc";
 import connectDB from "@/config/db";
 import validateJWT from "@/middlewares/jwtValidation";
-import fs from "fs-extra";
 import { v4 as uuidv4 } from "uuid";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
 import { getBlobContainerClient } from "@/config/azureStorage";
 import { cookies } from "next/headers";
 
-// ✅ Remove Next.js default body parser
 export const dynamic = "force-dynamic";
 
 /**
  * Convert any image to PNG format
  */
 async function toStandardPng(buffer) {
-  console.time("Image to Standard PNG Conversion");
-  const result = await sharp(buffer)
+  return await sharp(buffer)
     .withMetadata()
-    .flatten({ background: "#ffffff" }) // White background if any transparency
+    .flatten({ background: "#ffffff" }) // White background if transparency exists
     .toColourspace("srgb")
     .png({ compressionLevel: 6, force: true })
     .toBuffer();
-  console.timeEnd("Image to Standard PNG Conversion");
-  return result;
 }
 
 /**
- * Resize image to a max dimension of 500x500 px
+ * Resize image to max 500x500 px
  */
 async function resizeImage(imageBuffer) {
-  console.time("Image Resize");
-  const resized = await sharp(imageBuffer).resize(500, 500, { fit: "inside" }).toBuffer();
-  console.timeEnd("Image Resize");
-  return resized;
+  return await sharp(imageBuffer)
+    .resize(500, 500, { fit: "inside" })
+    .toBuffer();
 }
 
 export async function POST(req) {
   try {
-    console.log("Inside backend: /api/kyc/profile");
-    console.time("Total Processing Time");
-
-    // ✅ Extract JWT token from cookies
+    // 1️⃣ Extract token from cookies
     const token = cookies().get("token")?.value;
     if (!token) {
-      return new Response(JSON.stringify({ success: false, message: "Unauthorized." }), { status: 401 });
+      return new Response(
+        JSON.stringify({ success: false, message: "Unauthorized." }),
+        { status: 401 }
+      );
     }
 
-    // ✅ Validate JWT & extract astrologerId
+    // 2️⃣ Validate JWT
     const astrologerId = await validateJWT(token).catch((err) => {
-      console.error("JWT validation error:", err.message);
+      console.error("JWT validation error:", err);
       return null;
     });
     if (!astrologerId) {
-      return new Response(JSON.stringify({ success: false, message: "Invalid token." }), { status: 403 });
+      return new Response(JSON.stringify({ success: false, message: "Invalid token." }), {
+        status: 403,
+      });
     }
 
-    // ✅ Connect to database
+    // 3️⃣ Connect to database
     await connectDB();
-    console.log("✅ Database connected successfully");
 
-    // ✅ Parse FormData
-    console.time("Parsing Form Data");
+    // 4️⃣ Parse FormData
     const formData = await req.formData();
-    console.timeEnd("Parsing Form Data");
-
-    // ✅ Validate displayName
-    const displayName = formData.get("displayName");
-    if (!displayName || typeof displayName !== "string" || !displayName.trim()) {
-      return new Response(JSON.stringify({ success: false, message: "Display name is required." }), { status: 400 });
-    }
-
-    // ✅ Validate profilePic
-    const profilePic = formData.get("profilePic");
-    if (!profilePic || !(profilePic instanceof Blob)) {
-      return new Response(JSON.stringify({ success: false, message: "Profile picture is required." }), { status: 400 });
-    }
-
-    // ✅ Convert Blob to Buffer
-    console.time("Convert File to Buffer");
-    let fileBuffer = Buffer.from(await profilePic.arrayBuffer());
-    console.timeEnd("Convert File to Buffer");
-
-    // ✅ Detect File Type
-    console.time("Detect File Type");
-    let fileType = await fileTypeFromBuffer(fileBuffer);
-    console.timeEnd("Detect File Type");
-    console.log("Detected File Type:", fileType?.mime);
-
-    // ✅ Only accept JPEG/PNG
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (!fileType || !allowedMimeTypes.includes(fileType.mime)) {
+    const displayName = formData.get("displayName")?.toString() || "";
+    if (!displayName.trim()) {
       return new Response(
-        JSON.stringify({ success: false, message: "Invalid file type. Only JPEG and PNG are allowed." }),
+        JSON.stringify({ success: false, message: "Display name is required." }),
         { status: 400 }
       );
     }
 
-    // ✅ Convert to PNG if needed
-    if (fileType.mime !== "image/png") {
-      console.log("Converting to PNG format...");
-      fileBuffer = await toStandardPng(fileBuffer);
+    // 5️⃣ Check if user uploaded a new profilePic
+    const profilePic = formData.get("profilePic"); // might be null
+
+    // 6️⃣ Fetch existing KYC
+    const existingKyc = await Kyc.findOne({ astrologerId }).lean();
+    let oldPicUrl = existingKyc?.displayPic;
+
+    let newPicUrl;
+    if (profilePic && profilePic instanceof Blob) {
+      // User uploaded a new picture
+      let fileBuffer = Buffer.from(await profilePic.arrayBuffer());
+      let fileType = await fileTypeFromBuffer(fileBuffer);
+
+      const allowedMimes = ["image/jpeg", "image/png", "image/jpg"];
+      if (!fileType || !allowedMimes.includes(fileType.mime)) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Invalid file type. Only JPEG and PNG are allowed.",
+          }),
+          { status: 400 }
+        );
+      }
+
+      // Convert to PNG if needed
+      if (fileType.mime !== "image/png") {
+        fileBuffer = await toStandardPng(fileBuffer);
+      }
+
+      // Resize image
+      fileBuffer = await resizeImage(fileBuffer);
+
+      // Upload to Azure
+      const uniqueName = `${uuidv4()}-profile.png`;
+      const containerClient = getBlobContainerClient("images");
+      await containerClient.createIfNotExists({ access: "blob" });
+
+      const blockBlobClient = containerClient.getBlockBlobClient(uniqueName);
+      await blockBlobClient.uploadData(fileBuffer, {
+        blobHTTPHeaders: { blobContentType: "image/png" },
+      });
+
+      newPicUrl = blockBlobClient.url;
+    } else {
+      // No new file → Keep oldPicUrl if it exists
+      if (!oldPicUrl) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "No existing profile image found. Please upload new.",
+          }),
+          { status: 400 }
+        );
+      }
+      newPicUrl = oldPicUrl;
     }
 
-    // ✅ Resize image to 500x500 px
-    console.log("Resizing image...");
-    fileBuffer = await resizeImage(fileBuffer);
-
-    // ✅ Upload to Azure
-    console.time("Azure Upload");
-    const uniqueName = `${uuidv4()}-profile.png`;
-    const containerClient = getBlobContainerClient("images");
-    await containerClient.createIfNotExists({ access: "blob" });
-
-    const blockBlobClient = containerClient.getBlockBlobClient(uniqueName);
-    await blockBlobClient.uploadData(fileBuffer, { blobHTTPHeaders: { blobContentType: "image/png" } });
-    const azureFileUrl = blockBlobClient.url;
-    console.log("Profile Image uploaded to:", azureFileUrl);
-    console.timeEnd("Azure Upload");
-
-    // ✅ Update MongoDB (KYC)
-    console.time("MongoDB Update");
-    const kycEntry = await Kyc.findOneAndUpdate(
+    // 7️⃣ Update or insert KYC record
+    const updatedKyc = await Kyc.findOneAndUpdate(
       { astrologerId },
-      { astrologerId, displayName, displayPic: azureFileUrl, page3Filled: true },
+      {
+        astrologerId,
+        displayName,
+        displayPic: newPicUrl,
+        page3Filled: true,
+      },
       { upsert: true, new: true }
     );
-    console.timeEnd("MongoDB Update");
 
-    console.timeEnd("Total Processing Time");
-
-    return new Response(JSON.stringify({ success: true, message: "Profile uploaded successfully.", data: kycEntry }), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Profile uploaded successfully.",
+        data: updatedKyc,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("Error uploading profile or updating DB:", error);
-    return new Response(JSON.stringify({ success: false, message: "Server error. Please try again later." }), {
-      status: 500,
-    });
+    console.error("Error uploading profile:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Server error. Please try again later." }),
+      { status: 500 }
+    );
   }
 }
