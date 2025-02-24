@@ -157,7 +157,7 @@ const Step2: React.FC = () => {
       </h1>
 
       {panPreview && (
-        <div className="flex gap-4 mb-4 w-[320px] justify-start">
+        <div className="flex gap-4 mb-4 w-[320px] justify-center">
           <div className="w-[80px] h-[80px] border-2 border-[#fec758] overflow-hidden">
             <Image
               src={panPreview}
@@ -171,21 +171,28 @@ const Step2: React.FC = () => {
         </div>
       )}
 
-      {/* Upload button */}
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
-      >
-        {panPreview ? "Re-Upload PAN" : "Upload PAN"}
-      </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        accept="image/*"
-        onChange={handleFileUpload}
-      />
+     {/* Upload PAN Button with Icon */}
+<button
+  type="button"
+  onClick={() => fileInputRef.current?.click()}
+  className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg 
+             flex items-center justify-center gap-2"
+>
+  <Image
+    src="/assets/images/upload.png"
+    alt="Upload Icon"
+    width={20}
+    height={20}
+  />
+  <span>{panPreview ? "Re-Upload PAN" : "Upload PAN"}</span>
+</button>
+<input
+  ref={fileInputRef}
+  type="file"
+  className="hidden"
+  accept="image/*"
+  onChange={handleFileUpload}
+/>
 
       <form onSubmit={handleSubmit} className="flex flex-col items-center mt-6">
         <div className="flex flex-col w-[320px]">

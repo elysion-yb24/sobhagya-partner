@@ -175,11 +175,11 @@ function RegisterComponent1() {
         </div>
 
         {/* Button */}
-        <div className="flex justify-center md:justify-start w-full">
+        <div className="flex justify-center md:justify-start w-full md:-mx-20">
           <button
             type="button"
             onClick={handleDoKyc}
-            className="btn mx-auto text-white font-inter font-bold bg-[#fec758] my-5 px-20"
+            className="btn mx-auto text-white font-inter font-bold bg-[#fec758] my-2 px-20 "
           >
             DO KYC
           </button>
@@ -187,12 +187,12 @@ function RegisterComponent1() {
       </div>
 
       {/* Right Section (hidden on mobile) */}
-      <div className="hidden md:block w-full max-w-[50%] ml-6 mx-[10%]">
+      <div className="hidden md:block w-full max-w-[50%] ml-6 mx-[5%]">
         <Image
           src="/assets/images/You.png"
           alt="Illustration"
           width={500}
-          height={400}
+          height={100}
           priority
         />
       </div>

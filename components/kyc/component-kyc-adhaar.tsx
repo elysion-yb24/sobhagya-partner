@@ -18,7 +18,6 @@ export default function Step1() {
       window.removeEventListener("popstate", handleBack);
     };
   }, [router]);
-  
 
   // Aadhaar Number
   const [aadhaar, setAadhaar] = useState("");
@@ -178,7 +177,7 @@ export default function Step1() {
     const formData = new FormData();
     formData.append("aadharNumber", aadhaar);
 
-    // Only append the actual files if  re-uploaded them
+    // Only append the actual files if we re-uploaded them
     if (aadhaarFrontFile) formData.append("aadharFrontFile", aadhaarFrontFile);
     if (aadhaarBackFile) formData.append("aadharBackFile", aadhaarBackFile);
 
@@ -229,7 +228,7 @@ export default function Step1() {
 
       {/* Preview if front/back available */}
       {(aadhaarFrontPreview || aadhaarBackPreview) && (
-        <div className="flex gap-4 mb-4 w-[320px] justify-start">
+        <div className="flex gap-4 mb-4 w-[320px] justify-center">
           {aadhaarFrontPreview && (
             <div className="w-[80px] h-[80px] border-2 border-[#fec758] overflow-hidden">
               <Image
@@ -262,9 +261,18 @@ export default function Step1() {
         <button
           type="button"
           onClick={() => fileInputRefFront.current?.click()}
-          className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
+          className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg 
+                     flex items-center justify-center gap-2"
         >
-          {aadhaarFrontPreview ? "Re-upload Aadhaar Front" : "Upload Aadhaar Front"}
+          <Image
+            src="/assets/images/upload.png"
+            alt="Upload Icon"
+            width={20}
+            height={20}
+          />
+          <span>
+            {aadhaarFrontPreview ? "Re-upload Aadhaar Front" : "Upload Aadhaar Front"}
+          </span>
         </button>
         <input
           ref={fileInputRefFront}
@@ -277,9 +285,18 @@ export default function Step1() {
         <button
           type="button"
           onClick={() => fileInputRefBack.current?.click()}
-          className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
+          className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg 
+                     flex items-center justify-center gap-2"
         >
-          {aadhaarBackPreview ? "Re-upload Aadhaar Back" : "Upload Aadhaar Back"}
+          <Image
+            src="/assets/images/upload.png"
+            alt="Upload Icon"
+            width={20}
+            height={20}
+          />
+          <span>
+            {aadhaarBackPreview ? "Re-upload Aadhaar Back" : "Upload Aadhaar Back"}
+          </span>
         </button>
         <input
           ref={fileInputRefBack}

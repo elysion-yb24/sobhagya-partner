@@ -152,7 +152,7 @@ export default function ProfileUpload() {
         Upload Your Profile Picture
       </h1>
 
-      <div className="flex gap-4 mb-4 w-[320px] justify-start">
+      <div className="flex gap-4 mb-4 w-[320px] justify-center">
         {/* Existing or captured preview */}
         {displayPreview && (
           <div className="w-[80px] h-[80px] border-2 border-[#fec758] overflow-hidden">
@@ -179,17 +179,24 @@ export default function ProfileUpload() {
         )}
       </div>
 
-      {/* Upload / Capture Photo Button */}
-      <button
-        type="button"
-        onClick={cameraActive ? handleCapturePhoto : handleOpenCamera}
-        className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg"
-      >
-        {cameraActive ? "Click Photo" : displayPreview ? "Re-upload Photo" : "Upload Photo"}
-      </button>
+      {/* Upload / Capture Photo Button with Icon */}
+<button
+  type="button"
+  onClick={cameraActive ? handleCapturePhoto : handleOpenCamera}
+  className="w-[320px] py-2 px-3 bg-white border border-[#fec758] text-black font-inter rounded-lg 
+             flex items-center justify-center gap-2"
+>
+  <Image
+    src="/assets/images/upload.png"
+    alt="Upload Icon"
+    width={20}
+    height={20}
+  />
+  <span>
+    {cameraActive ? "Click Photo" : displayPreview ? "Re-upload Photo" : "Upload Photo"}
+  </span>
+</button>
 
-      {/* or remove photo if user wants? */}
-      
 
       <form onSubmit={handleSubmit} className="flex flex-col items-center mt-6">
         <div className="flex flex-col w-[320px]">
