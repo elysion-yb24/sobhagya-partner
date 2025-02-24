@@ -187,7 +187,7 @@ export default function ProfileUpload() {
              flex items-center justify-center gap-2"
 >
   <Image
-    src="/assets/images/upload.png"
+    src="/assets/images/Upload.png"
     alt="Upload Icon"
     width={20}
     height={20}

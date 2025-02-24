@@ -265,7 +265,7 @@ export default function Step1() {
                      flex items-center justify-center gap-2"
         >
           <Image
-            src="/assets/images/upload.png"
+            src="/assets/images/Upload.png"
             alt="Upload Icon"
             width={20}
             height={20}
@@ -289,7 +289,7 @@ export default function Step1() {
                      flex items-center justify-center gap-2"
         >
           <Image
-            src="/assets/images/upload.png"
+            src="/assets/images/Upload.png"
             alt="Upload Icon"
             width={20}
             height={20}
