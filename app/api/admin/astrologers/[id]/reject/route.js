@@ -1,6 +1,6 @@
 import dbConnect from "@/config/db";
 import Astrologer from "@/models/astrologer";
-import Kyc from "@/models/kyc";
+// import Kyc from "@/models/kyc";
 import checkAdminAuth from "@/middlewares/checkAdminAuth";
 
 async function handler(req, res) {
@@ -20,18 +20,18 @@ async function handler(req, res) {
     }
 
     // 2) Mark them as KYC not done, leadStatus = "rejected"
-    astrologer.isKycDone = false;
+    // astrologer.isKycDone = false;
     astrologer.leadStatus = "rejected";
     await astrologer.save();
 
     // 3) If you need to store a reason or notification, you can do so in Kyc
-    const kycRecord = await Kyc.findOne({ astrologerId: id });
-    if (kycRecord) {
-      // If you had a 'rejectionReason' field, you'd store it here:
-      // kycRecord.rejectionReason = req.body.reason || "Details could not be validated";
-      // but since your Kyc schema doesn't have it, we skip that step
-      await kycRecord.save();
-    }
+    // const kycRecord = await Kyc.findOne({ astrologerId: id });
+    // if (kycRecord) {
+    //   // If you had a 'rejectionReason' field, you'd store it here:
+    //   // kycRecord.rejectionReason = req.body.reason || "Details could not be validated";
+    //   // but since your Kyc schema doesn't have it, we skip that step
+    //   await kycRecord.save();
+    // }
 
     // 4) On the frontend, the astrologer will see they have 'leadStatus = "rejected"'
     // and you can show them a notification: "Details could not be validated; please contact support."

@@ -1,57 +1,51 @@
 import jwt from "jsonwebtoken";
 import dbConnect from "@/config/db";
-import Astrologer from "@/models/astrologer";
+import Admin from "@/models/admin"; // Ensure you use the correct Admin model
+import { cookies } from "next/headers"; // For handling cookies in Next.js App Router
 
 export default function checkAdminAuth(handler) {
   return async (req, res) => {
     try {
-      // 1) Connect to DB
-      console.log("Test2")
+      console.log("Inside Admin Auth middleware");
       await dbConnect();
 
-      // 2) Get the token from the Authorization header or cookies
-      // Example: "Authorization: Bearer <token>"
+      // 1) Get the token from cookies or Authorization header
+      const cookieToken = cookies().get("token")?.value || null;
       const authHeader = req.headers.authorization || "";
-      const token = authHeader.startsWith("Bearer ")
+      const headerToken = authHeader.startsWith("Bearer ")
         ? authHeader.split(" ")[1]
         : null;
 
-      // If token is also stored in cookies, you could do:
-      // const { token: cookieToken } = req.cookies;
-      // const token = token || cookieToken;
+      const token = cookieToken || headerToken;
 
       if (!token) {
-        return res.status(401).json({ success: false, message: "No token provided. Admin only." });
+        return res.status(401).json({ success: false, message: "Unauthorized. No token provided." });
       }
 
-      // 3) Verify token
-      // Ensure you use the same secret as in your sign method
+      // 2) Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // 4) Check the user in your database and confirm they're an admin
-      // This example uses an "Astrologer" model, but typically you might have a separate "Admin" model.
-      // Or you might have a role field in the user schema. We'll pretend "role" is in the token or DB.
-      const astrologer = await Astrologer.findById(decoded.astrologerId);
+      // 3) Find the admin user in the database
+      const admin = await Admin.findById(decoded.adminId);
 
-      if (!astrologer) {
-        return res.status(401).json({ success: false, message: "Invalid token or user not found." });
+      if (!admin) {
+        return res.status(401).json({ success: false, message: "Invalid token or admin not found." });
       }
 
-      // Example: if the token had a "role" field
-      if (!decoded.role || decoded.role !== "admin") {
-        return res.status(403).json({ success: false, message: "Forbidden. Admins only." });
+      // 4) Ensure user is verified and active
+      if (!admin.isVerified) {
+        return res.status(403).json({ success: false, message: "Access denied. Admin not verified." });
       }
 
-      // Alternatively, if your DB has an "isAdmin" field on the user:
-      // if (!astrologer.isAdmin) {
-      //   return res.status(403).json({ success: false, message: "Forbidden. Admins only." });
-      // }
+      if (admin.status === "disabled") {
+        return res.status(403).json({ success: false, message: "Admin account is disabled." });
+      }
 
-      // 5) Attach user info to req if needed
-      req.user = astrologer;
-      req.astrologerId = astrologer._id; // if you still need it
+      // 5) Attach admin info to the request
+      req.user = admin;
+      req.adminId = admin._id;
 
-      // 6) Proceed to the next function (the actual handler)
+      // 6) Proceed to the handler
       return handler(req, res);
 
     } catch (error) {
