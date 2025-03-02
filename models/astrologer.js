@@ -16,7 +16,7 @@ const astrologerSchema = new mongoose.Schema(
     },
     interviewStatus: {
       type: String,
-      enum: ["Pending", "Interviewed", "Onboarded", "Rejected"],
+      enum: ["Pending", "Interviewed", "Clear", "Rejected"],
       default: "Pending",
     },
     yearsOfExperience: { type: Number }, // Optional, collected later

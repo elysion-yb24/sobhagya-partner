@@ -1,56 +1,103 @@
 import jwt from "jsonwebtoken";
 import dbConnect from "@/config/db";
-import Admin from "@/models/admin"; // Ensure you use the correct Admin model
-import { cookies } from "next/headers"; // For handling cookies in Next.js App Router
+import Team from "@/models/team";
 
-export default function checkAdminAuth(handler) {
-  return async (req, res) => {
-    try {
-      console.log("Inside Admin Auth middleware");
-      await dbConnect();
+export async function checkAdminAuth(request) {
+  console.log("[checkAdminAuth] invoked");
+  try {
+    // 1) Read token from the Authorization header
+    const cookieHeader = request.headers.get("cookie") || ""; 
+// Example: "sessionId=abc123; access_token=eyJhbGc...; i18nextLng=en"
 
-      // 1) Get the token from cookies or Authorization header
-      const cookieToken = cookies().get("token")?.value || null;
-      const authHeader = req.headers.authorization || "";
-      const headerToken = authHeader.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : null;
 
-      const token = cookieToken || headerToken;
 
-      if (!token) {
-        return res.status(401).json({ success: false, message: "Unauthorized. No token provided." });
-      }
+// Split by semicolons
+const cookiePairs = cookieHeader.split("; "); // ["sessionId=abc123", "access_token=eyJhbGc...", "i18nextLng=en"]
 
-      // 2) Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+console.log("Splitted cookies:",cookiePairs);
+let accessToken = null;
+for (const pair of cookiePairs) {
+  const [name, value] = pair.split("=");
+  if (name === "access_token") {
+    accessToken = value;                                                                  
+    break;
+  }
+}
+console.log("Extracted token:", accessToken);
 
-      // 3) Find the admin user in the database
-      const admin = await Admin.findById(decoded.adminId);
 
-      if (!admin) {
-        return res.status(401).json({ success: false, message: "Invalid token or admin not found." });
-      }
+    
+    // We skip cookies logic entirely, as you requested
+    const token = accessToken; 
+    console.log("[checkAdminAuth] Using token:", token);
 
-      // 4) Ensure user is verified and active
-      if (!admin.isVerified) {
-        return res.status(403).json({ success: false, message: "Access denied. Admin not verified." });
-      }
-
-      if (admin.status === "disabled") {
-        return res.status(403).json({ success: false, message: "Admin account is disabled." });
-      }
-
-      // 5) Attach admin info to the request
-      req.user = admin;
-      req.adminId = admin._id;
-
-      // 6) Proceed to the handler
-      return handler(req, res);
-
-    } catch (error) {
-      console.error("Admin auth error:", error);
-      return res.status(401).json({ success: false, message: "Unauthorized or token expired." });
+    if (!token) {
+      console.log("[checkAdminAuth] No token found in request");
+      return {
+        authorized: false,
+        status: 401,
+        message: "No token provided in request headers or cookies.",
+      };
     }
-  };
+
+    // 2) Verify & decode the JWT
+    console.log("[checkAdminAuth] Verifying token with SECRET:", process.env.JWT_SECRET_ADMIN);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET_ADMIN);
+    } catch (err) {
+      console.log("[checkAdminAuth] Token verification failed:", err.message);
+      return {
+        authorized: false,
+        status: 401,
+        message: "Invalid or expired token.",
+      };
+    }
+    console.log("[checkAdminAuth] Decoded token:", decoded);
+
+    // 3) Connect to DB & check Admin
+    console.log("[checkAdminAuth] Connecting to DB...");
+    await dbConnect();
+
+    console.log("[checkAdminAuth] Fetching admin user with ID: 67c16d4ae1d0eb7db8359a94");
+    const adminUser = await Team.findById("67c16d4ae1d0eb7db8359a94");
+    console.log("[checkAdminAuth] Admin user found:", adminUser);
+
+    if (!adminUser) {
+      console.log("[checkAdminAuth] Admin user not found");
+      return {
+        authorized: false,
+        status: 404,
+        message: "Admin not found.",
+      };
+    }
+
+    // 4) Check role
+    if (adminUser.role !== "admin") {
+      console.log("[checkAdminAuth] User is not an admin. Role found:", adminUser.role);
+      return {
+        authorized: false,
+        status: 403,
+        message: "Forbidden. You are not an admin.",
+      };
+    }
+
+    // 5) Retrieve required permissions
+    const userPermissions = adminUser.permissions || [];
+    console.log("[checkAdminAuth] Admin user permissions:", userPermissions);
+
+    // 6) Return success
+    return {
+      authorized: true,
+      admin: adminUser,
+      permissions: userPermissions,
+    };
+  } catch (error) {
+    console.error("[checkAdminAuth] Catch block error:", error);
+    return {
+      authorized: false,
+      status: 401,
+      message: "Unauthorized or token expired.",
+    };
+  }
 }

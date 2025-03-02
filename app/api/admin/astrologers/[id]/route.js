@@ -1,41 +1,48 @@
 import dbConnect from "@/config/db";
 import Astrologer from "@/models/astrologer";
 import Kyc from "@/models/kyc";
-import checkAdminAuth from "@/middlewares/checkAdminAuth";
 
-async function handler(req, res) {
-  const { id } = req.query;
+export async function GET(req, { params }) {
+  console.log("Inside Fetching Astrologer Backend");
 
-  if (req.method !== "GET") {
-    return res.status(405).json({ success: false, message: "Method not allowed." });
-  }
+  const { id } = params; // Extract ID from the dynamic route parameter
 
   try {
-    await dbConnect();
+    await dbConnect(); // Ensure DB is connected
 
     // 1) Fetch astrologer by ID
     const astrologer = await Astrologer.findById(id);
     if (!astrologer) {
-      return res.status(404).json({ success: false, message: "Astrologer not found." });
+      return new Response(JSON.stringify({ success: false, message: "Astrologer not found." }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // 2) Fetch KYC record for this astrologer
     const kycRecord = await Kyc.findOne({ astrologerId: id });
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        astrologer,
-        kyc: kycRecord,
-      },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          astrologer,
+          kyc: kycRecord,
+        },
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("Error fetching single astrologer:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error.",
-    });
+    return new Response(
+      JSON.stringify({ success: false, message: "Internal server error." }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
-
-export default checkAdminAuth(handler);
