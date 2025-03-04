@@ -7,14 +7,16 @@ import RegisterComponent1 from "@/components/register/register1";
 import RegisterComponent2 from "@/components/register/register2";
 import RegisterComponent3 from "@/components/register/register3";
 import RegisterComponent4 from "@/components/register/register4";
+import RegisterComponent5 from "@/components/register/register5"; // Import RegisterComponent5
 
 const Register = () => {
-  const [interviewStatus, setInterviewStatus] = useState(null);
+  const [interviewStatus, setInterviewStatus] = useState(null);  // ✅ Removed TypeScript type here
+  const [leadStatus, setLeadStatus] = useState(null);  // ✅ Removed TypeScript type here
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchInterviewStatus = async () => {
+    const fetchAstrologerStatus = async () => {
       try {
         const response = await fetch("/api/auth/register/astrologerStatus", {
           method: "GET",
@@ -25,43 +27,44 @@ const Register = () => {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch interview status");
+          throw new Error("Failed to fetch astrologer status");
         }
 
         const data = await response.json();
-        // Example API Response:
-        // {
-        //   success: true,
-        //   interviewStatus: "Pending" | "Interviewed" | "Rejected" | "Scheduled",
-        //   isDetailsFilled: true | false
-        // }
 
-        // 1. If the API indicates details aren't filled, redirect immediately
+        // Redirect if details aren't filled
         if (data?.success && data.isDetailsFilled === false) {
           router.replace("/auth/cover-register/page3");
-          return; // Prevent further processing
+          return;
         }
 
-        // 2. If we have a valid interviewStatus, store it
-        if (data?.interviewStatus) {
-          setInterviewStatus(data.interviewStatus);
-        } else {
-          setInterviewStatus("Pending"); // Default fallback
-        }
+        // Store interviewStatus and leadStatus
+        setInterviewStatus(data?.interviewStatus || "Pending");
+        setLeadStatus(data?.leadStatus || "NotOnboarded");
+
+        console.log(data.leadStatus);
+        console.log(data.interviewStatus);
+
       } catch (error) {
-        // If any error occurs, default to "Pending"
+        console.error("Error fetching astrologer status:", error);
         setInterviewStatus("Pending");
+        setLeadStatus("NotOnboarded");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchInterviewStatus();
+    fetchAstrologerStatus();
   }, [router]);
 
-  // Show loading indicator or blank while fetching data
+  // Show loading indicator while fetching data
   if (loading) {
     return <p className="text-center"></p>;
+  }
+
+  // Render RegisterComponent5 if leadStatus is "Onboarded"
+  if (leadStatus === "onboarded") {
+    return <RegisterComponent5 />;
   }
 
   // Render components based on interviewStatus
@@ -75,7 +78,7 @@ const Register = () => {
     return <RegisterComponent4 />;
   }
 
-  // Fallback to "Pending" if none of the above
+  // Default fallback
   return <RegisterComponent1 />;
 };
 

@@ -52,7 +52,8 @@ export async function GET() {
       JSON.stringify({
         success: true,
         interviewStatus: astrologer.interviewStatus,
-        isDetailsFilled: astrologer.isDetailsFilled
+        isDetailsFilled: astrologer.isDetailsFilled,
+        leadStatus: astrologer.leadStatus
       }),
       { status: 200 }
     );
