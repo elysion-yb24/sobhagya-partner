@@ -5,7 +5,7 @@ import { checkAdminAuth } from "@/middlewares/checkAdminAuth";
 
 // Reusable CORS headers
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "http://localhost:3000", // or your domain
+  "Access-Control-Allow-Origin": "*", // or your domain
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Credentials": "true",
