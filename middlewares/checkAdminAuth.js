@@ -5,30 +5,9 @@ import Team from "@/models/team";
 export async function checkAdminAuth(request) {
   console.log("[checkAdminAuth] invoked");
   try {
-    // 1) Read token from the Authorization header
-    const cookieHeader = request.headers.get("cookie") || ""; 
-// Example: "sessionId=abc123; access_token=eyJhbGc...; i18nextLng=en"
+ const authHeader = request.headers.get("authorization") || "";
+const token = authHeader.split(" ")[1]; // assume "Bearer xyz"
 
-
-
-// Split by semicolons
-const cookiePairs = cookieHeader.split("; "); // ["sessionId=abc123", "access_token=eyJhbGc...", "i18nextLng=en"]
-
-console.log("Splitted cookies:",cookiePairs);
-let accessToken = null;
-for (const pair of cookiePairs) {
-  const [name, value] = pair.split("=");
-  if (name === "access_token") {
-    accessToken = value;                                                                  
-    break;
-  }
-}
-console.log("Extracted token:", accessToken);
-
-
-    
-    // We skip cookies logic entirely, as you requested
-    const token = accessToken; 
     console.log("[checkAdminAuth] Using token:", token);
 
     if (!token) {
@@ -59,8 +38,8 @@ console.log("Extracted token:", accessToken);
     console.log("[checkAdminAuth] Connecting to DB...");
     await dbConnect();
 
-    console.log("[checkAdminAuth] Fetching admin user with ID: 67c16d4ae1d0eb7db8359a94");
-    const adminUser = await Team.findById("67c16d4ae1d0eb7db8359a94");
+    
+    const adminUser = await Team.findById(decoded.userId);
     console.log("[checkAdminAuth] Admin user found:", adminUser);
 
     if (!adminUser) {

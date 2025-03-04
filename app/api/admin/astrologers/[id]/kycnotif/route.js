@@ -1,49 +1,45 @@
-// app/api/admin/astrologers/[id]/reject/route.js
+// app/api/admin/astrologers/[id]/update/route.js
 
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/config/db";
-import Astrologer from "@/models/astrologer";
+import Kyc from "@/models/kyc";
 
 export async function POST(request, { params }) {
   try {
-    // 1) Connect to DB
+    // 1) Connect to the database
     await dbConnect();
 
-    // 2) Parse request body
-    const { interviewDate, interviewTime } = await request.json();
+    // 2) Parse request body for the KYC notification message
+    const { kycNotification } = await request.json();
 
-    // 3) Find Astrologer by ID
+    // 3) Find KYC by Astrologer ID
     const { id } = params;
-    const astrologer = await Astrologer.findById(id);
+    const astrologerKYC = await Kyc.findOne({ astrologerId: id });
 
-    if (!astrologer) {
+    if (!astrologerKYC) {
       return new NextResponse(
-        JSON.stringify({ success: false, message: "Astrologer not found." }),
+        JSON.stringify({ success: false, message: "Astrologer KYC not found." }),
         { status: 404, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
-    
-    // 4) Update astrologer fields
-    astrologer.interviewStatus = "Scheduled"; // Or whichever status you'd prefer
-    astrologer.interviewDate = interviewDate;
-    astrologer.interviewTime = interviewTime;
-    
-    await astrologer.save();
+
+    // 4) Update KYC Notification
+    astrologerKYC.kycNotification = kycNotification;
+    await astrologerKYC.save();
 
     // 5) Return success response with CORS headers
     return new NextResponse(
       JSON.stringify({
         success: true,
-        message: `Astrologer ${id} has been updated with date/time.`,
+        message: `KYC notification updated successfully for Astrologer ${id}.`,
         data: {
-          interviewDate: astrologer.interviewDate,
-          interviewTime: astrologer.interviewTime
-        }
+          kycNotification: astrologerKYC.kycNotification,
+        },
       }),
       { status: 200, headers: { "Access-Control-Allow-Origin": "*" } }
     );
   } catch (error) {
-    console.error("Error updating astrologer:", error);
+    console.error("Error updating KYC details:", error);
     return new NextResponse(
       JSON.stringify({ success: false, message: "Internal server error." }),
       { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }

@@ -22,6 +22,7 @@ const kycSchema = new mongoose.Schema(
       upiId: { type: String },
       cancelledCheque: { type: String }, // URL for cheque/passbook
     },
+    kycNotification: { type: String, default: null }, // New field for KYC notification
   },
   { timestamps: true }
 );

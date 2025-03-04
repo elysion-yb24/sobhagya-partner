@@ -11,12 +11,44 @@ function RegisterComponent2() {
     vcp: "Not Decided",
     acp: "Not Decided",
   });
+  const [kycDetails, setKycDetails] = useState<{
+    page1Filled?: boolean;
+    page2Filled?: boolean;
+    page3Filled?: boolean;
+    page4Filled?: boolean;
+    kycNotification?: string | null;
+  } | null>(null);
 
+  const [dynamicText, setDynamicText] = useState<string>("Loading KYC details...");
   const [showFullText, setShowFullText] = useState(false);
+
   const router = useRouter();
 
-  const fullText =
-    "Congratulations! Your Interview is Completed - Welcome to the Sobhagya Family! Please Complete the Pending Documentation to Begin Your Journey as an Astrologer.";
+  // ---------------------------------------------
+  // Decide which text to show based on KYC status
+  // ---------------------------------------------
+  const getKycText = (): string => {
+    if (!kycDetails) {
+      // If there's absolutely no record (API returned null), show default "Congratulations" message
+      return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
+    }
+
+    const { page1Filled, page2Filled, page3Filled, page4Filled, kycNotification } = kycDetails;
+
+    console.log(kycDetails)
+    // CASE 1: All pages filled
+    if (page1Filled && page2Filled && page3Filled && page4Filled) {
+      return "Great news! You have successfully submitted all your KYC documents. Our team is currently reviewing them, and we’ll update you soon.";
+    }
+    // CASE 2: kycNotification is null => same as "Congratulations!" flow
+    else if (kycNotification === null) {
+      return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
+    }
+    // CASE 3: Show notification directly, or fallback text
+    else {
+      return kycNotification || "No updates available.";
+    }
+  };
 
   // Prevent the user from navigating back
   useEffect(() => {
@@ -62,25 +94,57 @@ function RegisterComponent2() {
     fetchAstrologerDetails();
   }, []);
 
+  // Fetch KYC details
+  useEffect(() => {
+    const fetchKycDetails = async () => {
+      try {
+        const response = await fetch("/api/auth/register/fetchKyc", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        const result = await response.json();
+
+        // If success == false, we do nothing; we can still show default text
+        if (result.success) {
+          // If the KYC details are null, we keep it as null => triggers default "Congratulations"
+          setKycDetails(result.kycDetails); // might be null or object
+        }
+      } catch (error) {
+        console.error("Error fetching KYC details:", error);
+      }
+    };
+
+    fetchKycDetails();
+  }, []);
+
+  // Whenever kycDetails changes, update the dynamicText
+  useEffect(() => {
+    setDynamicText(getKycText());
+  }, [kycDetails]);
+
   // Handle KYC step navigation
-  const handleSignOut = async () => {
+  const handleDoKyc = async () => {
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
+      const response = await fetch("/api/auth/register/register", {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
 
       const result = await response.json();
       if (result.success) {
-        window.location.href = "/";
+        router.push(result.nextRoute);
       } else {
-        alert("Sign-out failed. Please try again.");
+        alert(result.message || "Could not determine next KYC page.");
       }
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Error checking KYC progress:", error);
+      alert("Something went wrong. Please try again.");
     }
   };
+
   return (
     <div
       className="w-full m-auto min-h-screen flex items-center relative overflow-hidden flex-col md:flex-row"
@@ -124,44 +188,43 @@ function RegisterComponent2() {
           </div>
         </div>
 
-        {/* Status Box - Proper Alignment */}
-<div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto min-h-[150px] border border-gray-300 rounded-lg pt-6 pl-8 pr-8 mt-1 shadow-sm">
-  <div className="flex items-center justify-between mb-3">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Interview Status :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.status}
-    </span>
-  </div>
-  <div className="flex items-center justify-between mb-3">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Video Call Price :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.vcp}
-    </span>
-  </div>
-  <div className="flex items-center justify-between">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Audio Call Price :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.acp}
-    </span>
-  </div>
-</div>
+        {/* Status Box */}
+        <div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto min-h-[150px] border border-gray-300 rounded-lg pt-6 pl-8 pr-8 mt-1 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-extrabold text-base md:text-xl text-[#252525]">
+              Interview Status :
+            </span>
+            <span className="font-extrabold text-base md:text-xl text-[#252525] mr-10">
+              {userData.status}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-extrabold text-base md:text-xl text-[#252525]">
+              Video Call Price :
+            </span>
+            <span className="font-bold text-base md:text-xl text-[#252525] mr-10 ">
+              {userData.vcp}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="font-extrabold text-base md:text-xl text-[#252525]">
+              Audio Call Price :
+            </span>
+            <span className="font-extrabold text-base md:text-xl text-[#252525] mr-10">
+              {userData.acp}
+            </span>
+          </div>
+        </div>
 
-
-        {/* Information Text - Left aligned for mobile */}
+        {/* Information Text */}
         <div className="font-inter w-full md:w-[70%] my-4 text-sm md:text-base text-left">
           <p>
             {/* Show full text on desktop */}
-            <span className="hidden md:inline">{fullText}</span>
+            <span className="hidden md:inline">{dynamicText}</span>
 
             {/* Show truncated text on mobile with Read More option */}
             <span className="md:hidden">
-              {showFullText ? fullText : `${fullText.substring(0, 80)}... `}
+              {showFullText ? dynamicText : `${dynamicText.substring(0, 80)}... `}
               <span
                 className="text-gray-500 cursor-pointer font-medium"
                 onClick={() => setShowFullText(!showFullText)}
@@ -176,10 +239,10 @@ function RegisterComponent2() {
         <div className="flex justify-center md:justify-start w-full md:-mx-20">
           <button
             type="button"
-            onClick={handleSignOut}
+            onClick={handleDoKyc}
             className="btn mx-auto text-white font-inter font-bold bg-[#fec758] my-2 px-20"
           >
-            Logout
+            DO KYC
           </button>
         </div>
       </div>

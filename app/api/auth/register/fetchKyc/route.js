@@ -1,4 +1,5 @@
 import connectDB from "@/config/db";
+import Kyc from "@/models/kyc";
 import Astrologer from "@/models/astrologer";
 import validateJWT from "@/middlewares/jwtValidation";
 import { cookies } from "next/headers";
@@ -33,35 +34,31 @@ export async function GET() {
       );
     }
 
-    // Fetch astrologer details, including interview date/time
-    const astrologer = await Astrologer.findById(astrologerId).select(
-      "name interviewStatus videoPrice audioPrice interviewDate interviewTime"
+    
+    
+    // Fetch KYC details only
+    const astrologerKYC = await Kyc.findOne({ astrologerId: astrologerId }).select(
+        "page1Filled page2Filled page3Filled page4Filled kycNotification"
     );
-
-    if (!astrologer) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Astrologer not found." }),
-        { status: 404 }
-      );
-    }
+    
 
     return new Response(
       JSON.stringify({
         success: true,
-        data: {
-          name: astrologer.name,
-          videoPrice: astrologer.videoPrice || "Not Decided",
-          audioPrice: astrologer.audioPrice || "Not Decided",
-          interviewStatus: astrologer.interviewStatus || "Pending",
-          // Return the interviewDate & interviewTime
-          interviewDate: astrologer.interviewDate || "Not Scheduled",
-          interviewTime: astrologer.interviewTime || "Not Scheduled",
-        },
+        kycDetails: astrologerKYC
+          ? {
+              page1Filled: astrologerKYC.page1Filled || false,
+              page2Filled: astrologerKYC.page2Filled || false,
+              page3Filled: astrologerKYC.page3Filled || false,
+              page4Filled: astrologerKYC.page4Filled || false,
+              kycNotification: astrologerKYC.kycNotification || null,
+            }
+          : null, // If KYC doesn't exist, return null
       }),
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching astrologer details:", error);
+    console.error("Error fetching KYC details:", error);
     return new Response(
       JSON.stringify({ success: false, message: "Internal Server Error" }),
       { status: 500 }

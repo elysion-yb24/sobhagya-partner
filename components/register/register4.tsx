@@ -4,19 +4,14 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-function RegisterComponent1() {
+function RegisterComponent4() {
   const [userData, setUserData] = useState({
     name: "",
-    status: "Pending",
-    vcp: "Not Decided",
-    acp: "Not Decided",
+    interviewDate: "Not Scheduled",
+    interviewTime: "Not Scheduled",
   });
 
-  const [showFullText, setShowFullText] = useState(false);
   const router = useRouter();
-
-  const fullText =
-    "We are in the process of scheduling your telephonic interview as part of the onboarding process. The call will be arranged within the next 24 to 48 hours. After the interview, we will finalize the calling price for your profile.";
 
   // Prevent the user from navigating back
   useEffect(() => {
@@ -44,12 +39,18 @@ function RegisterComponent1() {
         });
 
         const result = await response.json();
+        await console.log("User Details",result);
         if (result.success) {
           setUserData({
             name: result.data.name || "Unknown",
-            status: result.data.interviewStatus,
-            vcp: result.data.videoPrice || "Not Decided",
-            acp: result.data.audioPrice || "Not Decided",
+            interviewDate: result.data.interviewDate
+              ? new Date(result.data.interviewDate).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+              : "Not Scheduled",
+            interviewTime: result.data.interviewTime || "Not Scheduled",
           });
         } else {
           console.error("Failed to fetch astrologer details:", result.message);
@@ -59,11 +60,11 @@ function RegisterComponent1() {
       }
     };
 
+
     fetchAstrologerDetails();
   }, []);
 
-  // Handle KYC step navigation
-
+  // Handle Sign Out
   const handleSignOut = async () => {
     try {
       const response = await fetch("/api/auth/logout", {
@@ -82,7 +83,7 @@ function RegisterComponent1() {
       console.error("Error signing out:", error);
     }
   };
-  
+
   return (
     <div
       className="w-full m-auto min-h-screen flex items-center relative overflow-hidden flex-col md:flex-row"
@@ -126,66 +127,38 @@ function RegisterComponent1() {
           </div>
         </div>
 
-        {/* Status Box - Proper Alignment */}
-<div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto min-h-[150px] border border-gray-300 rounded-lg pt-6 pl-8 pr-8 mt-1 shadow-sm">
-  <div className="flex items-center justify-between mb-3">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Interview Status :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.status}
-    </span>
-  </div>
-  <div className="flex items-center justify-between mb-3">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Video Call Price :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.vcp}
-    </span>
-  </div>
-  <div className="flex items-center justify-between">
-    <span className="font-extrabold text-base md:text-xl text-[#252525]">
-      Audio Call Price :
-    </span>
-    <span className="text-black font-medium text-base md:text-lg">
-      {userData.acp}
-    </span>
-  </div>
-</div>
-
-
-        {/* Information Text - Left aligned for mobile */}
-        <div className="font-inter w-full md:w-[70%] my-4 text-sm md:text-base text-left">
-          <p>
-            {/* Show full text on desktop */}
-            <span className="hidden md:inline">{fullText}</span>
-
-            {/* Show truncated text on mobile with Read More option */}
-            <span className="md:hidden">
-              {showFullText ? fullText : `${fullText.substring(0, 80)}... `}
-              <span
-                className="text-gray-500 cursor-pointer font-medium"
-                onClick={() => setShowFullText(!showFullText)}
-              >
-                {showFullText ? "Read Less" : "Read More"}
-              </span>
-            </span>
+        {/* Updated Status Box */}
+        <div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto min-h-[150px] border border-gray-300 rounded-lg pt-6 pl-8 pr-8 mt-3 shadow-sm">
+          <p className="text-[#252525] text-xl md:text-2xl font-bold mb-4 text-left ">
+            Interview Scheduled
           </p>
+
+          {/* Date and Time - Vertical on Mobile, Horizontal on Desktop */}
+          <div className="flex flex-col md:flex-row items-start md:items-center md:justify-between text-lg md:text-xl text-black font-medium">
+            <div className="w-full md:w-auto text-left">
+              <strong className="text-[#252525]">Date:</strong> {userData.interviewDate}
+            </div>
+            <div className="w-full md:w-auto text-left md:text-right mt-2 md:mt-0">
+              <strong className="text-[#252525]">Time:</strong> {userData.interviewTime}
+            </div>
+          </div>
+        </div>
+
+        {/* Information Text */}
+        <div className="font-inter w-full md:w-[70%] my-4 text-sm md:text-base text-left">
+          <p>Your interview callback has been scheduled. Please ensure you are available at this time.</p>
         </div>
 
         {/* Button */}
-
         <div className="flex justify-center md:justify-start w-full md:-mx-20">
           <button
             type="button"
             onClick={handleSignOut}
             className="btn mx-auto text-white font-inter font-bold bg-[#fec758] my-2 px-20"
           >
-            Logout
+            Sign Out
           </button>
         </div>
-        
       </div>
 
       {/* Right Section (hidden on mobile) */}
@@ -202,4 +175,4 @@ function RegisterComponent1() {
   );
 }
 
-export default RegisterComponent1;
+export default RegisterComponent4;

@@ -5,10 +5,10 @@ const astrologerSchema = new mongoose.Schema(
     name: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
     isVerified: { type: Boolean, default: false }, // Phone verification status
-    isDetailsFilled:{ type: Boolean, default: false },
-    videoPrice:{ type: String, required: false, default:"Not Decided" },
-    audioPrice:{ type: String, required: false, default:"Not Decided" },
-    isKycDone:{ type: Boolean, default: false },
+    isDetailsFilled: { type: Boolean, default: false },
+    videoPrice: { type: Number, default: null }, // Keeping it as a Number
+    audioPrice: { type: Number, default: null }, // Keeping it as a Number
+    isKycDone: { type: Boolean, default: false },
     leadStatus: {
       type: String,
       enum: ["lead", "interviewed", "kyc_pending", "onboarded", "rejected"],
@@ -16,9 +16,12 @@ const astrologerSchema = new mongoose.Schema(
     },
     interviewStatus: {
       type: String,
-      enum: ["Pending", "Interviewed", "Clear", "Rejected"],
+      enum: ["Pending", "Scheduled", "Clear", "Rejected"],
       default: "Pending",
     },
+    interviewDate: { type: Date, default: null }, // New field for interview date
+    interviewTime: { type: String, default: null }, // New field for interview time (HH:MM format)
+
     yearsOfExperience: { type: Number }, // Optional, collected later
     languages: [
       {
@@ -64,9 +67,7 @@ const astrologerSchema = new mongoose.Schema(
       },
     ],
     profileImage: { type: String }, // Optional
-    audioPrice: { type: Number }, // Optional
-    videoPrice: { type: Number }, // Optional
-
+    
     otp: { type: String }, // OTP for phone verification
     otpExpiry: { type: Date }, // Expiration for OTP
   },

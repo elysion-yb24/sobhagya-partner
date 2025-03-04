@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import RegisterComponent1 from "@/components/register/register1";
 import RegisterComponent2 from "@/components/register/register2";
 import RegisterComponent3 from "@/components/register/register3";
+import RegisterComponent4 from "@/components/register/register4";
 
 const Register = () => {
   const [interviewStatus, setInterviewStatus] = useState(null);
@@ -31,7 +32,7 @@ const Register = () => {
         // Example API Response:
         // {
         //   success: true,
-        //   interviewStatus: "Pending" | "Interviewed" | "Rejected",
+        //   interviewStatus: "Pending" | "Interviewed" | "Rejected" | "Scheduled",
         //   isDetailsFilled: true | false
         // }
 
@@ -66,10 +67,12 @@ const Register = () => {
   // Render components based on interviewStatus
   if (interviewStatus === "Pending") {
     return <RegisterComponent1 />;
-  } else if (interviewStatus === "Interviewed") {
+  } else if (interviewStatus === "Clear") {
     return <RegisterComponent2 />;
   } else if (interviewStatus === "Rejected") {
     return <RegisterComponent3 />;
+  } else if (interviewStatus === "Scheduled") {
+    return <RegisterComponent4 />;
   }
 
   // Fallback to "Pending" if none of the above
