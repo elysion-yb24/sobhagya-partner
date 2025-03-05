@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 function RegisterComponent2() {
   const [userData, setUserData] = useState({
@@ -11,6 +12,7 @@ function RegisterComponent2() {
     vcp: "Not Decided",
     acp: "Not Decided",
   });
+
   const [kycDetails, setKycDetails] = useState<{
     page1Filled?: boolean;
     page2Filled?: boolean;
@@ -19,35 +21,32 @@ function RegisterComponent2() {
     kycNotification?: string | null;
   } | null>(null);
 
-  const [dynamicText, setDynamicText] = useState<string>("Loading KYC details...");
+  const [dynamicText, setDynamicText] = useState<string>(
+    "Loading KYC details..."
+  );
   const [showFullText, setShowFullText] = useState(false);
 
   const router = useRouter();
 
   // ---------------------------------------------
   // Decide which text to show based on KYC status
+  // (when there is NO kycNotification)
   // ---------------------------------------------
   const getKycText = (): string => {
     if (!kycDetails) {
-      // If there's absolutely no record (API returned null), show default "Congratulations" message
+      // If there's absolutely no record (API returned null),
+      // show default "Congratulations" message
       return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
     }
 
-    const { page1Filled, page2Filled, page3Filled, page4Filled, kycNotification } = kycDetails;
+    const { page1Filled, page2Filled, page3Filled, page4Filled } = kycDetails;
 
-    console.log(kycDetails)
     // CASE 1: All pages filled
     if (page1Filled && page2Filled && page3Filled && page4Filled) {
       return "Great news! You have successfully submitted all your KYC documents. Our team is currently reviewing them, and we’ll update you soon.";
     }
-    // CASE 2: kycNotification is null => same as "Congratulations!" flow
-    else if (kycNotification === null) {
-      return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
-    }
-    // CASE 3: Show notification directly, or fallback text
-    else {
-      return kycNotification || "No updates available.";
-    }
+    // CASE 2: Otherwise, fallback to this
+    return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
   };
 
   // Prevent the user from navigating back
@@ -59,7 +58,6 @@ function RegisterComponent2() {
     };
 
     window.addEventListener("popstate", handleBackButton);
-
     return () => {
       window.removeEventListener("popstate", handleBackButton);
     };
@@ -105,11 +103,10 @@ function RegisterComponent2() {
         });
 
         const result = await response.json();
-
-        // If success == false, we do nothing; we can still show default text
+        // If success == false, do nothing; default text remains
         if (result.success) {
-          // If the KYC details are null, we keep it as null => triggers default "Congratulations"
-          setKycDetails(result.kycDetails); // might be null or object
+          // result.kycDetails could be null or an object
+          setKycDetails(result.kycDetails);
         }
       } catch (error) {
         console.error("Error fetching KYC details:", error);
@@ -120,8 +117,33 @@ function RegisterComponent2() {
   }, []);
 
   // Whenever kycDetails changes, update the dynamicText
+  // and show a SweetAlert2 toast if we have a kycNotification
   useEffect(() => {
-    setDynamicText(getKycText());
+    if (kycDetails?.kycNotification) {
+      Swal.fire({
+        toast: true,
+        position: "top",
+        icon: "info",
+        title: kycDetails.kycNotification,
+        showConfirmButton: false,
+        timer: 6000,
+        timerProgressBar: true,
+      });
+      // const Toast = Swal.mixin({
+      //     toast: true,
+      //     position: "top",
+      //     showConfirmButton: false,
+      //     timer: 3000,
+      //     timerProgressBar: true,
+      //   });
+      // Override main text to the "Congratulations..." message
+      setDynamicText(
+        "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer."
+      );
+    } else {
+      // No notification => proceed with the standard logic
+      setDynamicText(getKycText());
+    }
   }, [kycDetails]);
 
   // Handle KYC step navigation

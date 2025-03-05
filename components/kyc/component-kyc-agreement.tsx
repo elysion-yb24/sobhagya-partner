@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import jsPDF from "jspdf";
-import { useRouter } from "next/navigation";
 import html2canvas from "html2canvas";
+import { useRouter } from "next/navigation";
 
 interface AstrologerData {
   name: string;
@@ -13,6 +13,7 @@ interface AstrologerData {
 
 const AgreementComponent: React.FC = () => {
   const router = useRouter();
+
   const [astrologerData, setAstrologerData] = useState<AstrologerData>({
     name: "Loading...",
     date: "Loading...",
@@ -20,27 +21,8 @@ const AgreementComponent: React.FC = () => {
 
   const agreementRef = useRef<HTMLDivElement | null>(null);
   const signatureRef = useRef<SignatureCanvas | null>(null);
-
-  useEffect(() => {
-    document.documentElement.classList.remove("overflow-hidden");
-    document.body.classList.remove("overflow-hidden");
-
-    return () => {
-      document.documentElement.classList.add("overflow-hidden");
-      document.body.classList.add("overflow-hidden");
-    };
-  }, []);
-
-  useEffect(() => {
-      const handleBack = () => {
-        router.replace("/auth/kyc/page4");
-      };
-  
-      window.addEventListener("popstate", handleBack);
-      return () => {
-        window.removeEventListener("popstate", handleBack);
-      };
-    }, [router]);
+  const buttonsRef = useRef<HTMLDivElement | null>(null);
+  const clearBtnRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const fetchAstrologerDetails = async () => {
@@ -69,55 +51,116 @@ const AgreementComponent: React.FC = () => {
   }, []);
 
   const clearSignature = () => {
-    if (signatureRef.current) {
-      signatureRef.current.clear();
-    }
+    signatureRef.current?.clear();
   };
 
-  const downloadPDF = async () => {
+  const generatePdf = async () => {
     if (!agreementRef.current) return;
-  
-    const buttons = document.getElementById("action-buttons");
-    if (buttons) buttons.style.display = "none";
-  
-    setTimeout(async () => {
-      window.scrollTo(0, 0); // Scroll to top to capture header
-      const canvas = await html2canvas(agreementRef.current as HTMLElement, {
-        scale: 3,
+
+    // Hide action buttons and Clear Signature before capturing
+    if (buttonsRef.current) buttonsRef.current.style.display = "none";
+    if (clearBtnRef.current) clearBtnRef.current.style.display = "none";
+
+    // Temporarily remove fixed height so html2canvas captures all content
+    const agreementElem = agreementRef.current;
+    const previousHeight = agreementElem.style.height;
+    agreementElem.style.height = "auto";
+
+    try {
+      // Allow reflow
+      window.scrollTo(0, 0);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Capture the entire content (including signature)
+      const canvas = await html2canvas(agreementElem, {
+        scale: 2,
         useCORS: true,
-        scrollY: -window.scrollY, // Capture the header as well
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: agreementRef.current?.scrollHeight || 1000,
       });
-  
-      const imgData = canvas.toDataURL("image/png");
+
+      // Create jsPDF and define margins
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let y = 0;
-  
-      while (y < imgHeight) {
-        pdf.addImage(imgData, "PNG", 0, -y, imgWidth, imgHeight);
-        y += pageHeight;
-        if (y < imgHeight) pdf.addPage();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10; // Adjust if needed
+      const pdfWidth = pageWidth - margin * 2;
+      const pdfHeight = pageHeight - margin * 2;
+
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+
+      // Scale factor to fit the canvas width into the PDF width
+      const scale = pdfWidth / canvasWidth;
+      // How many vertical canvas pixels we can place on one PDF page
+      const sliceHeightInCanvasPx = pdfHeight / scale;
+
+      let yPosition = 0;
+      let pageCount = 0;
+
+      // Slicing the canvas for multi-page
+      while (yPosition < canvasHeight) {
+        if (pageCount !== 0) {
+          pdf.addPage();
+        }
+
+        // Create a temporary canvas for each slice
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvasWidth;
+        pageCanvas.height = Math.min(
+          sliceHeightInCanvasPx,
+          canvasHeight - yPosition
+        );
+
+        const pageCtx = pageCanvas.getContext("2d");
+        if (pageCtx) {
+          pageCtx.drawImage(
+            canvas,
+            0,
+            yPosition,
+            canvasWidth,
+            pageCanvas.height,
+            0,
+            0,
+            canvasWidth,
+            pageCanvas.height
+          );
+        }
+
+        // Convert slice to PNG and add to PDF
+        const pageData = pageCanvas.toDataURL("image/png");
+        pdf.addImage(
+          pageData,
+          "PNG",
+          margin,
+          margin,
+          pdfWidth,
+          pageCanvas.height * scale
+        );
+
+        yPosition += sliceHeightInCanvasPx;
+        pageCount++;
       }
-  
+
       pdf.save("agreement.pdf");
-  
-      if (buttons) buttons.style.display = "flex";
-    }, 500);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      // Restore original height
+      agreementElem.style.height = previousHeight;
+
+      // Show action buttons and Clear Signature again
+      if (buttonsRef.current) buttonsRef.current.style.display = "flex";
+      if (clearBtnRef.current) clearBtnRef.current.style.display = "inline-block";
+    }
   };
-  
 
   const handleContinue = () => {
     router.push("/auth/kyc/page6");
   };
-  
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen py-8">
       <div className="flex flex-col w-full max-w-[900px]">
+        {/* Agreement Content */}
         <div
           className="bg-white shadow-lg rounded-lg p-6 md:p-12 text-gray-800 h-[75vh] overflow-y-auto scrollbar-hide"
           ref={agreementRef}
@@ -139,8 +182,22 @@ const AgreementComponent: React.FC = () => {
             AGREEMENT BETWEEN ASTROLOGER AND SOBHAGYA APP
           </h2>
 
-          {[{ title: "1. Confidentiality", content: ["Not share any details, including user information, pricing structures, or confidential business information of the Company, with any third party.", "Maintain the confidentiality of the Company's proprietary information during the term of this Agreement and after its termination."] },
-            { title: "2. Exit Notice and Payment", content: ["The Astrologer agrees to provide a written notice to the Company at least 15 days prior to their intended date of exit.", "Upon exit, the payment for the Astrologer's work will be processed and credited within 45 days from the date of exit."] },
+          {/* Agreement Sections */}
+          {[
+            {
+              title: "1. Confidentiality",
+              content: [
+                "Not share any details, including user information, pricing structures, or confidential business information.",
+                "Maintain confidentiality during and after this Agreement.",
+              ],
+            },
+            {
+              title: "2. Exit Notice and Payment",
+              content: [
+                "Provide 15 days’ notice before exit.",
+                "Payment processed within 45 days after exit.",
+              ],
+            },
             {
               title: "3. Immediate Termination",
               content: [
@@ -156,8 +213,8 @@ const AgreementComponent: React.FC = () => {
                 "This Agreement is governed by the laws of India.",
                 "Any disputes arising out of or relating to this Agreement shall be resolved in the courts of Delhi.",
               ],
-            }]
-            .map((section, index) => (
+            },
+          ].map((section, index) => (
             <div key={index} className="mt-6 md:mt-8">
               <h2 className="text-base md:text-xl font-bold">{section.title}</h2>
               <ul className="mt-2 md:mt-3 space-y-2 md:space-y-3 text-sm md:text-base text-gray-700 leading-relaxed">
@@ -168,55 +225,63 @@ const AgreementComponent: React.FC = () => {
             </div>
           ))}
 
+          {/* Signatures Section */}
           <div className="mt-10 text-sm md:text-lg font-semibold">
             <h2 className="text-base md:text-xl font-bold">5. Signatures</h2>
             <p className="mt-2 md:mt-3 font-medium">
-              By signing this Agreement, both parties agree to abide by the terms and conditions set forth herein.
+              By signing this Agreement, both parties agree to abide by the terms.
             </p>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between mt-6 md:mt-8 text-sm md:text-lg font-semibold">
-            <div className="w-full md:w-1/2">
-              <p className="font-bold">For Sobhagya App:</p>
-              <p className="mt-2">Name: Xyx</p>
-              <p className="mt-1">Position: Manager</p>
-              <p className="mt-1">Date: 10-Dec-2024</p>
-              
+          {/*
+            In small screens: stacked (flex-col).
+            In medium+ screens: side-by-side (flex-row).
+          */}
+          <div className="flex flex-col md:flex-row md:items-start md:space-x-6 mt-6 md:mt-8 text-sm md:text-lg font-semibold">
+            {/* Astrologer Info */}
+            <div className="mb-4 md:mb-0">
+              <p className="font-bold">For Astrologer:</p>
+              <p>Name: {astrologerData.name}</p>
+              <p>Date: {astrologerData.date}</p>
             </div>
 
-            <div className="w-full md:w-1/2 mt-4 md:mt-0 relative">
-  <p className="font-bold">For Astrologer:</p>
-  <p className="mt-2">Name: {astrologerData.name}</p>
-  <p className="mt-1">Date: {astrologerData.date}</p>
-  
-  <div className="relative">
-    <SignatureCanvas
-      ref={signatureRef}
-      penColor="black"
-      canvasProps={{
-        width: 300,
-        height: 100,
-        className: "border border-gray-300 rounded-lg mt-2"
-      }}
-    />
-    {!signatureRef.current?.isEmpty() || (
-      <span className="absolute top-1/2 left-1/2 text-gray-400 text-sm -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-        Sign Here
-      </span>
-    )}
-  </div>
-  
-  <button onClick={clearSignature} className="text-blue-500 text-sm mt-2">
-    Clear Signature
-  </button>
-</div>
-
+            {/* Signature Box */}
+            <div>
+              <SignatureCanvas
+                ref={signatureRef}
+                penColor="black"
+                canvasProps={{
+                  width: 300,
+                  height: 100,
+                  className: "border border-gray-300 rounded-lg mt-2",
+                }}
+              />
+              <button
+                ref={clearBtnRef}
+                onClick={clearSignature}
+                data-html2canvas-ignore="true"
+                className="text-blue-500 text-sm mt-2"
+              >
+                Clear Signature
+              </button>
+            </div>
           </div>
         </div>
 
-        <div id="action-buttons" className="flex justify-between mt-6">
-          <button onClick={downloadPDF} className="btn w-[48%] bg-[#fec758] text-white font-bold">Download Agreement</button>
-          <button onClick={handleContinue} className="btn w-[48%] bg-[#fec758] text-white font-bold">Continue</button>
+        {/* Action Buttons */}
+        <div ref={buttonsRef} className="flex justify-between mt-6">
+          <button
+            onClick={generatePdf}
+            className="btn w-[48%] bg-[#fec758] text-white font-bold"
+          >
+            Download Agreement
+          </button>
+          <button
+            onClick={handleContinue}
+            className="btn w-[48%] bg-[#fec758] text-white font-bold"
+          >
+            Continue
+          </button>
         </div>
       </div>
     </div>
