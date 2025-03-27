@@ -52,7 +52,7 @@ const ComponentsCarouselAutoplay = () => {
             })}
         </div>
         <button className="swiper-button-prev-ex2 grid place-content-center ltr:left-2 rtl:right-2 p-1 transition text-primary hover:text-white border border-primary  hover:border-primary hover:bg-primary rounded-full absolute z-[999] top-1/2 -translate-y-1/2">
-            <svg>...</svg>
+            <svg>.</svg>
         </button>
         <button className="swiper-button-next-ex2 grid place-content-center ltr:right-2 rtl:left-2 p-1 transition text-primary hover:text-white border border-primary  hover:border-primary hover:bg-primary rounded-full absolute z-[999] top-1/2 -translate-y-1/2">
             <svg>...</svg>
@@ -79,7 +79,7 @@ const ComponentsCarouselAutoplay = () => {
                                 <img src={`/assets/images/${item}`} className="max-h-80 w-full object-cover" alt="itemImage" />
                                 <div className="absolute top-1/4 z-[999] text-white ltr:left-12 rtl:right-12">
                                     <div className="text-base font-bold sm:text-3xl">This is blog Image</div>
-                                    <div className="mt-1 hidden w-4/5 text-base font-medium sm:mt-5 sm:block">
+                                    <div className="mt-1 hidden w-4/5 text-base font-medium sm:mt-4 sm:block">
                                         {`Lorem Ipsum is simply dummy text of the printing and
                           typesetting industry. Lorem Ipsum has been the
                           industry's standard.`}
