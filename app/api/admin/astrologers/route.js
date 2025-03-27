@@ -6,7 +6,7 @@ import { checkAdminAuth } from "@/middlewares/checkAdminAuth";
 // Allowed origins list
 const allowedOrigins = [
   "http://localhost:3000",  // Local development frontend
-  "https://sobhagya-admin-frontend-7qru.vercel.app/"
+  "https://admin.sobhagya.in/"
   
 ];
 
