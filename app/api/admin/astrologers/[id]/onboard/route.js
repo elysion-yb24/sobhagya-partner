@@ -22,7 +22,7 @@ export async function POST(request, { params }) {
 
     if(!astrologer.audioPrice || !astrologer.videoPrice || !astrologer.displayAudioPrice || !astrologer.displayVideoPrice) throw new Error('Prices are not set')
 
-    if(astrologer.leadStatus !== "kyc_done") throw new Error('This lead can not be onboarded');
+    if(astrologer.leadStatus === "onboarded" || astrologer.leadStatus === "rejected") throw new Error('Astrologer already onboarded or rejected');
 
     let user = await User.findOne({phone: astrologer.phone});
 
