@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import appRunVariables from "../config/appRunVariables";
 
 const astrologerSchema = new mongoose.Schema(
   {
@@ -6,12 +7,14 @@ const astrologerSchema = new mongoose.Schema(
     phone: { type: String, required: true, unique: true },
     isVerified: { type: Boolean, default: false }, // Phone verification status
     isDetailsFilled: { type: Boolean, default: false },
-    videoPrice: { type: Number, default: null }, // Keeping it as a Number
-    audioPrice: { type: Number, default: null }, // Keeping it as a Number
+    displayAudioPrice:{type: Number, default: 10},
+    displayVideoPrice:{type:Number,default:17},
+    videoPrice: { type: Number, default: 0 }, // Keeping it as a Number
+    audioPrice: { type: Number, default: 0 }, // Keeping it as a Number
     isKycDone: { type: Boolean, default: false },
     leadStatus: {
       type: String,
-      enum: ["lead", "interviewed", "kyc_pending", "onboarded", "rejected"],
+      enum: ["lead", "interviewed", "kyc_pending","kyc_done", "onboarded", "rejected"],
       default: "lead",
     },
     interviewStatus: {
@@ -26,44 +29,13 @@ const astrologerSchema = new mongoose.Schema(
     languages: [
       {
         type: String,
-        enum: [
-          "Hindi",
-          "English",
-          "Punjabi",
-          "Bengali",
-          "Marathi",
-          "Tamil",
-          "Telugu",
-          "Bhojpuri",
-          "Malayalam",
-          "Kannada",
-          "Gujarati",
-          "Assamese",
-          "Others",
-        ],
+        enum: appRunVariables.languages
       },
     ],
     specializations: [
       {
         type: String,
-        enum: [
-          "Vedic",
-          "Vastu",
-          "Tarrot Reading",
-          "Reiki Healing",
-          "Palmistry",
-          "KP",
-          "Prashna",
-          "Meditation & Mindfulness",
-          "Yoga & Meditation",
-          "Psychics",
-          "Pranic Healing",
-          "Feng Shui",
-          "Fortune Telling",
-          "Face Reading",
-          "Numerology",
-          "Others",
-        ],
+        enum: appRunVariables.talksAbout,
       },
     ],
     profileImage: { type: String }, // Optional
