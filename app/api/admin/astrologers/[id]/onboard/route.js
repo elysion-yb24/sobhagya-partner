@@ -3,8 +3,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/config/db";
 import Astrologer from "@/models/astrologer";
-import User from "@models/user";
-import Auth from "@models/auth";
+import User from "@/models/user";
+import Auth from "@/models/auth";
 import crypto from "crypto";
 
 export async function POST(request, { params }) {
