@@ -37,7 +37,7 @@ export async function POST(request, { params }) {
       numericId: crypto.randomBytes(4).readUInt32BE(0, true),
       phone: astrologer?.phone,
       name: astrologer?.name,
-      role: "astrologer",
+      role: "friend",
       age:astrologer?.yearsOfExperience,
       avatar:astrologer?.profileImage,
       language:astrologer?.languages,
@@ -52,7 +52,7 @@ export async function POST(request, { params }) {
     auth=new Auth({
       _id:astrologer._id,
       phone: astrologer.phone,
-      role:"astrologer"
+      role:"friend"
     })
 
     await user.save();
