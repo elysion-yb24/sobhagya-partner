@@ -1,4 +1,4 @@
-export default appRunVariable={
+const appRunVariable={
     languages: ['hindi', 'english', 'tamil', 'punjabi', 'bhojpuri','rajasthani', 'marathi', 'malyalam', 'bengali', 'telugu', 'kannada', 'gujarati', 'asamesse',],
     talksAbout: [
         "Vedic",
@@ -19,3 +19,5 @@ export default appRunVariable={
         "Others",
     ]
 }
+
+export default appRunVariable;
