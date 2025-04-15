@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import appRunVariables from "../config/appRunVariables";
+import appRunVariables from "@/config/appRunVariables";
 
 // Base Schema
 const baseSchema = new mongoose.Schema({

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import appRunVariables from "../config/appRunVariables";
+import appRunVariables from "@/config/appRunVariables";
 
 const astrologerSchema = new mongoose.Schema(
   {
