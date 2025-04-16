@@ -14,7 +14,7 @@ export async function POST(request, { params }) {
 
     const { id } = params;
     const astrologer = await Astrologer.findById(id);
-    const kyc=await Kyc.find({astrologerId:astrologer._id});
+    const kyc=await Kyc.findOne({astrologerId:astrologer._id});
 
     if (!astrologer) throw new Error('No astrologer exists with this Id.');
 
@@ -27,8 +27,7 @@ export async function POST(request, { params }) {
     if(astrologer.leadStatus === "onboarded" || astrologer.leadStatus === "rejected") throw new Error('Astrologer already onboarded or rejected');
 
     let user = await User.findOne({phone: astrologer.phone});
-
-    if(user) await Auth.DeleteOne({phone:astrologer.phone});
+    if(user) throw new Error('User Already Exists with this phone.');
 
     let auth=await Auth.findOne({phone:astrologer.phone});
 
