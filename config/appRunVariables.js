@@ -1,5 +1,19 @@
-const appRunVariable={
-    languages: ['hindi', 'english', 'tamil', 'punjabi', 'bhojpuri','rajasthani', 'marathi', 'malyalam', 'bengali', 'telugu', 'kannada', 'gujarati', 'asamesse',],
+const appRunVariable = {
+    languages: [
+        "Hindi",
+        "English",
+        "Punjabi",
+        "Bengali",
+        "Marathi",
+        "Tamil",
+        "Telugu",
+        "Bhojpuri",
+        "Malayalam",
+        "Kannada",
+        "Gujarati",
+        "Assamese",
+        "Others"
+    ],
     talksAbout: [
         "Vedic",
         "Vastu",
