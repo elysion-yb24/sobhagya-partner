@@ -5,6 +5,7 @@ import dbConnect from "@/config/db";
 import Astrologer from "@/models/astrologer";
 import User from "@/models/user";
 import Auth from "@/models/auth";
+import Kyc from '@/models/kyc';
 import crypto from "crypto";
 
 export async function POST(request, { params }) {
@@ -13,6 +14,7 @@ export async function POST(request, { params }) {
 
     const { id } = params;
     const astrologer = await Astrologer.findById(id);
+    const kyc=await Kyc.find({astrologerId:astrologer._id});
 
     if (!astrologer) throw new Error('No astrologer exists with this Id.');
 
@@ -39,7 +41,7 @@ export async function POST(request, { params }) {
       name: astrologer?.name,
       role: "friend",
       age:astrologer?.yearsOfExperience,
-      avatar:astrologer?.profileImage,
+      avatar:kyc?.displayPic,
       language:astrologer?.languages,
       talksAbout:astrologer?.specializations,
       status:"offline",

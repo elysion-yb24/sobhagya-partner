@@ -157,7 +157,7 @@ export async function POST(req) {
 
     // 1️⃣3️⃣ Update Astrologer Status
     console.time("Astrologer Update");
-    await Astrologer.findByIdAndUpdate(astrologerId, { isKycDone: true });
+    await Astrologer.findByIdAndUpdate(astrologerId, { isKycDone: true ,leadStatus:'kyc_done'});
     console.timeEnd("Astrologer Update");
 
     console.log("✅ Bank details submitted successfully.");
