@@ -31,7 +31,7 @@ export async function POST(request, { params }) {
 
     let auth=await Auth.findOne({phone:astrologer.phone});
 
-    if(auth) await Auth.DeleteOne({phone:astrologer.phone});
+    if(auth) await Auth.deleteOne({phone:astrologer.phone});
 
     user =new User({
       _id:astrologer?._id,
