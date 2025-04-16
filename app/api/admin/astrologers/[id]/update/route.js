@@ -10,7 +10,7 @@ export async function POST(request, { params }) {
     await dbConnect();
 
     // 2) Parse request body
-    const { audioPrice, videoPrice } = await request.json();
+    const { audioPrice, videoPrice,displayAudioPrice,displayVideoPrice } = await request.json();
 
     // 3) Find Astrologer by ID
     const { id } = params;
@@ -27,6 +27,8 @@ export async function POST(request, { params }) {
     astrologer.interviewStatus="Clear"
     astrologer.audioPrice = audioPrice;
     astrologer.videoPrice = videoPrice;
+    astrologer.displayAudioPrice = displayAudioPrice
+    astrologer.displayVideoPrice = displayVideoPrice
     
     await astrologer.save();
 
