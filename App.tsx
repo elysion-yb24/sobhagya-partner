@@ -75,7 +75,7 @@ function App({ children }: PropsWithChildren) {
 
   return (
     <div
-      className={`w-screen h-screen flex flex-col overflow-hidden ${themeConfig.menu}`}
+      className={`w-screen h-screen flex flex-col overflow-hidden overflow-y-scroll ${themeConfig.menu}`}
     >
       {isLoading ? <Loading /> : children}
       <AppProgressBar height="4px" color="#4287f5" options={{ showSpinner: false }} />

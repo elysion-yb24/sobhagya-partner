@@ -14,7 +14,7 @@ const CoverRegister = () => {
     
     return (
         <div 
-        className="flex min-h-screen items-center justify-center bg-white px-6 sm:px-16 relative overflow-hidden"
+        className="flex min-h-screen items-center justify-center bg-white px-6 sm:px-16 relative overflow-scroll"
         style={{
             backgroundImage: "url('/assets/images/Group-1.svg')", // Background image path
             backgroundPosition: "right bottom 5%", // Adjust position
