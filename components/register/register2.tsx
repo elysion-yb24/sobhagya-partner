@@ -32,22 +32,22 @@ function RegisterComponent2() {
   // Decide which text to show based on KYC status
   // (when there is NO kycNotification)
   // ---------------------------------------------
-  const getKycText = (): string => {
-    if (!kycDetails) {
-      // If there's absolutely no record (API returned null),
-      // show default "Congratulations" message
-      return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
-    }
+  // const getKycText = (): string => {
+  //   if (!kycDetails) {
+  //     // If there's absolutely no record (API returned null),
+  //     // show default "Congratulations" message
+  //     return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
+  //   }
 
-    const { page1Filled, page2Filled, page3Filled, page4Filled } = kycDetails;
+  //   const { page1Filled, page2Filled, page3Filled, page4Filled } = kycDetails;
 
-    // CASE 1: All pages filled
-    if (page1Filled && page2Filled && page3Filled && page4Filled) {
-      return "Great news! You have successfully submitted all your KYC documents. Our team is currently reviewing them, and we’ll update you soon.";
-    }
-    // CASE 2: Otherwise, fallback to this
-    return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
-  };
+  //   // CASE 1: All pages filled
+  //   if (page1Filled && page2Filled && page3Filled && page4Filled) {
+  //     return "Great news! You have successfully submitted all your KYC documents. Our team is currently reviewing them, and we’ll update you soon.";
+  //   }
+  //   // CASE 2: Otherwise, fallback to this
+  //   return "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer.";
+  // };
 
   // Prevent the user from navigating back
   useEffect(() => {
@@ -137,12 +137,12 @@ function RegisterComponent2() {
       //     timerProgressBar: true,
       //   });
       // Override main text to the "Congratulations..." message
-      setDynamicText(
-        "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer."
-      );
+      // setDynamicText(
+      //   "Congratulations! Your interview is completed — welcome to the Sobhagya Family! Please complete the pending documentation to begin your journey as an esteemed astrologer."
+      // );
     } else {
       // No notification => proceed with the standard logic
-      setDynamicText(getKycText());
+      // setDynamicText(getKycText());
     }
   }, [kycDetails]);
 
@@ -190,12 +190,12 @@ function RegisterComponent2() {
         />
 
         {/* Onboarding Text */}
-        <p className="text-black text-2xl md:text-3xl font-inter font-bold my-4">
+        {/* <p className="text-black text-2xl md:text-3xl font-inter font-bold my-4">
           Onboarding in Progress...
-        </p>
+        </p> */}
 
         {/* User Greeting */}
-        <div className="flex items-center justify-start w-full">
+        {/* <div className="flex items-center justify-start w-full">
           <p className="text-black text-xl font-inter font-bold">
             Namaste {userData.name.split(" ")[0]}
           </p>
@@ -208,10 +208,10 @@ function RegisterComponent2() {
               priority
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Status Box */}
-        <div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto min-h-[150px] border border-gray-300 rounded-lg pt-6 pl-8 pr-8 mt-1 shadow-sm">
+        {/* <div className="bg-[#FFF9E6] font-inter font-bold w-full md:w-[70%] h-auto min-h-[150px] border border-gray-300 rounded-lg pt-6 pl-8 pr-8 mt-1 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="font-extrabold text-base md:text-xl text-[#252525]">
               Interview Status :
@@ -236,16 +236,16 @@ function RegisterComponent2() {
               {userData.acp}
             </span>
           </div>
-        </div>
+        </div> */}
 
         {/* Information Text */}
-        <div className="font-inter w-full md:w-[70%] my-4 text-sm md:text-base text-left">
-          <p>
+        {/* <div className="font-inter w-full md:w-[70%] my-4 text-sm md:text-base text-left">
+          <p> */}
             {/* Show full text on desktop */}
-            <span className="hidden md:inline">{dynamicText}</span>
+            {/* <span className="hidden md:inline">{dynamicText}</span>
 
-            {/* Show truncated text on mobile with Read More option */}
-            <span className="md:hidden">
+            Show truncated text on mobile with Read More option 
+             <span className="md:hidden">
               {showFullText ? dynamicText : `${dynamicText.substring(0, 80)}... `}
               <span
                 className="text-gray-500 cursor-pointer font-medium"
@@ -253,9 +253,9 @@ function RegisterComponent2() {
               >
                 {showFullText ? "Read Less" : "Read More"}
               </span>
-            </span>
-          </p>
-        </div>
+            </span> */}
+          {/* </p> 
+        </div> */}
 
         {/* Button */}
         <div className="flex justify-center md:justify-start w-full md:-mx-20">

@@ -10,7 +10,7 @@ import RegisterComponent4 from "@/components/register/register4";
 import RegisterComponent5 from "@/components/register/register5"; // Import RegisterComponent5
 
 const Register = () => {
-  const [interviewStatus, setInterviewStatus] = useState(null);  // ✅ Removed TypeScript type here
+  // const [interviewStatus, setInterviewStatus] = useState(null);  // ✅ Removed TypeScript type here
   const [leadStatus, setLeadStatus] = useState(null);  // ✅ Removed TypeScript type here
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -39,7 +39,7 @@ const Register = () => {
         }
 
         // Store interviewStatus and leadStatus
-        setInterviewStatus(data?.interviewStatus || "Pending");
+        // setInterviewStatus(data?.interviewStatus || "Pending");
         setLeadStatus(data?.leadStatus || "NotOnboarded");
 
         console.log(data.leadStatus);
@@ -47,7 +47,7 @@ const Register = () => {
 
       } catch (error) {
         console.error("Error fetching astrologer status:", error);
-        setInterviewStatus("Pending");
+        // setInterviewStatus("Pending");
         setLeadStatus("NotOnboarded");
       } finally {
         setLoading(false);
@@ -68,18 +68,18 @@ const Register = () => {
   }
 
   // Render components based on interviewStatus
-  if (interviewStatus === "Pending") {
-    return <RegisterComponent1 />;
-  } else if (interviewStatus === "Clear") {
+  // if (interviewStatus === "Pending") {
+  //   return <RegisterComponent1 />;
+  // } else if (interviewStatus === "Clear") {
     return <RegisterComponent2 />;
-  } else if (interviewStatus === "Rejected") {
-    return <RegisterComponent3 />;
-  } else if (interviewStatus === "Scheduled") {
-    return <RegisterComponent4 />;
-  }
+  // } else if (interviewStatus === "Rejected") {
+  //   return <RegisterComponent3 />;
+  // } else if (interviewStatus === "Scheduled") {
+  //   return <RegisterComponent4 />;
+  // }
 
   // Default fallback
-  return <RegisterComponent1 />;
+  // return <RegisterComponent1 />;
 };
 
 export default Register;
