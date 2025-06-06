@@ -57,6 +57,28 @@ const Register = () => {
     fetchAstrologerStatus();
   }, [router]);
 
+  useEffect(()=>{
+    async function checkKycProgress() {
+      try {
+        const response = await fetch("/api/auth/register/register", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+  
+        const result = await response.json();
+        if (result.success) {
+          router.push(result.nextRoute);
+        } else {
+          alert(result.message || "Could not determine next KYC page.");
+        }
+      } catch (error) {
+        console.error("Error checking KYC progress:", error);
+        alert("Something went wrong. Please try again.");
+      }
+    }
+    checkKycProgress();
+  },[router])
   // Show loading indicator while fetching data
   if (loading) {
     return <p className="text-center"></p>;
@@ -71,7 +93,8 @@ const Register = () => {
   // if (interviewStatus === "Pending") {
   //   return <RegisterComponent1 />;
   // } else if (interviewStatus === "Clear") {
-    return <RegisterComponent2 />;
+    // return <RegisterComponent2 />;
+
   // } else if (interviewStatus === "Rejected") {
   //   return <RegisterComponent3 />;
   // } else if (interviewStatus === "Scheduled") {
@@ -80,6 +103,7 @@ const Register = () => {
 
   // Default fallback
   // return <RegisterComponent1 />;
+  return <></>;
 };
 
 export default Register;
