@@ -33,6 +33,7 @@
         "@x1mrdonut1x/nouislider-react": "^3.4.3",
         "apexcharts": "^4.4.0",
         "bcrypt": "^5.1.1",
+        "browser-image-compression": "^2.0.2",
         "busboy": "^1.6.0",
         "cloudinary": "^2.5.1",
         "dotenv": "^16.4.7",

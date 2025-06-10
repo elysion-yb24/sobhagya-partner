@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Swal from "sweetalert2";
+import {compressImage} from "@/utils/utils";
 
 export default function Step1() {
   const router = useRouter();
@@ -87,7 +88,7 @@ export default function Step1() {
 
   // === 2. Handlers for Uploading Files ===
   // Front
-  const handleFileUploadFront = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUploadFront = async(e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -101,11 +102,14 @@ export default function Step1() {
       return;
     }
 
-    setAadhaarFrontFile(file);
+    let compressedFile=await compressImage(file);
+    if(!compressedFile) throw new Error("Failed to compress file")
+
+    setAadhaarFrontFile(compressedFile);
     setError((prev) => ({ ...prev, frontFile: false }));
 
     // Create a local preview
-    const objectURL = URL.createObjectURL(file);
+    const objectURL = URL.createObjectURL(compressedFile);
     setAadhaarFrontPreview(objectURL);
 
     Toast.fire({
@@ -115,7 +119,7 @@ export default function Step1() {
   };
 
   // Back
-  const handleFileUploadBack = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUploadBack =async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -129,10 +133,13 @@ export default function Step1() {
       return;
     }
 
-    setAadhaarBackFile(file);
+    let compressedFile=await compressImage(file);
+    if(!compressedFile) throw new Error("Failed to compress file")
+
+    setAadhaarBackFile(compressedFile);
     setError((prev) => ({ ...prev, backFile: false }));
 
-    const objectURL = URL.createObjectURL(file);
+    const objectURL = URL.createObjectURL(compressedFile);
     setAadhaarBackPreview(objectURL);
 
     Toast.fire({

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { compressImage } from "@/utils/utils";
 
 const Step2: React.FC = () => {
   const router = useRouter();
@@ -63,7 +64,7 @@ const Step2: React.FC = () => {
   }, [router]);
 
   // 3️⃣ Handle new file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload =async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -74,7 +75,10 @@ const Step2: React.FC = () => {
       return;
     }
     // Save file & preview
-    setPanFile(file);
+    let compressedImage=await compressImage(file);
+
+    if(compressedImage) console.log(`Compressed image size: ${compressedImage?.size / 1024 / 1024} MB`);
+    setPanFile(compressedImage);
     setPanPreview(URL.createObjectURL(file));
     setError((prev) => ({ ...prev, file: false }));
 
